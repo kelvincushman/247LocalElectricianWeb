@@ -1,4 +1,4 @@
-import { MapPin, Clock, Phone } from "lucide-react";
+import { MapPin, Clock, Phone, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
@@ -137,12 +137,20 @@ const ServiceAreas = () => {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               We serve properties within a 15-mile radius of Bilston. Give us a call and we'll confirm our response time to your location.
             </p>
-            <a href="tel:01234567890">
-              <Button size="lg" className="bg-emergency hover:bg-emergency/90 text-emergency-foreground text-xl px-8 py-6 font-bold">
-                <Phone className="mr-2 h-6 w-6" />
-                CHECK YOUR POSTCODE - CALL NOW
-              </Button>
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="tel:01234567890">
+                <Button size="lg" className="bg-emergency hover:bg-emergency/90 text-emergency-foreground text-xl px-8 py-6 font-bold">
+                  <Phone className="mr-2 h-6 w-6" />
+                  Call to Check
+                </Button>
+              </a>
+              <a href="https://wa.me/441234567890?text=Hi%2C%20do%20you%20cover%20my%20area%3F" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white text-xl px-8 py-6 font-bold">
+                  <MessageCircle className="mr-2 h-6 w-6" />
+                  Ask on WhatsApp
+                </Button>
+              </a>
+            </div>
           </div>
         </section>
 
