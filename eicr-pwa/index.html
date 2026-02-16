@@ -44,8 +44,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333;-webkit-ta
 .f label{display:block;font-size:8px;font-weight:600;color:#555;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
 .f input,.f select{width:100%;padding:6px 7px;border:1.5px solid #d0d0d0;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:var(--inp);outline:none;-webkit-appearance:none}
 .f input:focus,.f select:focus{border-color:var(--am);box-shadow:0 0 0 2px rgba(255,193,7,.15)}
-.upload-zone{border:2px dashed var(--am);border-radius:10px;padding:20px 12px;text-align:center;background:var(--inp);position:relative;overflow:hidden}
-.upload-zone input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:200px}
+.upload-zone{border:2px dashed var(--am);border-radius:10px;padding:20px 12px;text-align:center;background:var(--inp);cursor:pointer}
+.upload-zone input[type=file]{display:none}
 .upload-zone .icon{font-size:36px;margin-bottom:4px}
 .upload-zone .ulabel{font-size:13px;font-weight:700;color:var(--dk);margin-bottom:3px}
 .upload-zone .hint{font-size:10px;color:#888}
@@ -68,8 +68,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333;-webkit-ta
 .obs-fields .cr{display:flex;gap:4px;flex-wrap:wrap}
 .obs-fields .cr select,.obs-fields .cr input{width:auto;flex:1;min-width:60px}
 .obs-img{flex:0 0 100px;text-align:center}
-.obs-img .mu{border:2px dashed var(--am);border-radius:5px;padding:6px 3px;background:var(--inp);position:relative;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
-.obs-img .mu input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:2}
+.obs-img .mu{border:2px dashed var(--am);border-radius:5px;padding:6px 3px;background:var(--inp);min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.obs-img .mu input[type=file]{display:none}
 .obs-img .mu:active{background:#fff3c4}
 .obs-img img{width:96px;height:68px;object-fit:cover;border-radius:4px;border:1px solid #ddd}
 .rm-btn{position:absolute;top:-5px;right:-5px;width:20px;height:20px;border-radius:50%;background:var(--c1);color:#fff;border:none;cursor:pointer;font-size:10px;font-weight:700;line-height:20px;z-index:2}
@@ -86,8 +86,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333;-webkit-ta
 .ci-toggle button.no.on{background:#d32f2f;color:#fff}
 .ci-toggle button.na.on{background:#757575;color:#fff}
 .ci-photo{margin-top:8px}
-.ci-photo .mu{border:2px dashed var(--am);border-radius:6px;padding:10px;background:var(--inp);position:relative;display:flex;align-items:center;gap:10px;cursor:pointer}
-.ci-photo .mu input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:2}
+.ci-photo .mu{border:2px dashed var(--am);border-radius:6px;padding:10px;background:var(--inp);display:flex;align-items:center;gap:10px;cursor:pointer}
+.ci-photo .mu input[type=file]{display:none}
 .ci-photo .mu:active{background:#fff3c4}
 .ci-photo img{width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid #ddd}
 .ci-note{width:100%;padding:6px 8px;border:1.5px solid #d0d0d0;border-radius:4px;font-size:10px;font-family:'IBM Plex Mono';background:var(--inp);outline:none;margin-top:6px;-webkit-appearance:none}
@@ -527,7 +527,7 @@ function renderScan(){
   document.getElementById('p-scan').innerHTML=`
     <div class="stitle">📸 Scan Consumer Unit</div>
     <p style="font-size:10px;color:#555;line-height:1.6;margin-bottom:12px">Upload a photo of the distribution board. Claude AI will read MCBs/RCDs and auto-populate your circuit schedule.</p>
-    <div class="upload-zone"><input type="file" accept="image/*" onchange="handleBoardFile(this)">
+    <div class="upload-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" capture="environment" onchange="handleBoardFile(this)">
       <div id="boardPreview">${boardImage?`<img src="${boardImage}"><br><span style="font-size:9px;color:#888;margin-top:4px;display:block">Tap to change photo</span>`:`<div class="icon">📷</div><div class="ulabel">Tap to take photo or upload</div><div class="hint">Clear photo of open consumer unit</div><div class="cta">Choose Photo</div>`}</div>
     </div>
     <div id="scanStatus"></div>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eicr-v4';
+const CACHE_NAME = 'eicr-v5';
 const ASSETS = [
   '/',
   '/index.html',
