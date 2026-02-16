@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EICR Scanner">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>EICR Scanner - 247 Local Electrician</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--dk:#1a1a2e;--dk2:#16213e;--am:#ffc107;--am2:#ff9800;--bg:#f5f5f7;--card:#fff;--bdr:#e0e0e0;--inp:#fffde7;--c1:#d32f2f;--c2:#e65100;--c3:#f9a825;--fi:#1976d2;--pass:#2e7d32;--fail:#d32f2f;--warn:#e65100}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333;-webkit-tap-highlight-color:transparent;padding-bottom:env(safe-area-inset-bottom)}
+.header{background:linear-gradient(135deg,var(--dk),var(--dk2));padding:10px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.header .left{display:flex;flex-direction:column;gap:1px}
+.header .brand{font-size:7px;text-transform:uppercase;letter-spacing:.2em;color:var(--am);font-weight:600}
+.header .title{font-size:12px;font-weight:700;color:#fff}
+.header .right{display:flex;gap:5px;align-items:center}
+.hbtn{padding:7px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;font-family:'DM Sans'}
+.hbtn.pdf{background:linear-gradient(135deg,var(--am),var(--am2));color:var(--dk)}
+.hbtn.sv{background:#2e7d32;color:#fff}
+.hbtn.ld{background:#1976d2;color:#fff}
+.hbtn.st{background:rgba(255,255,255,.1);color:#ccc;font-size:14px;padding:7px 9px}
+.hbtn:active{transform:scale(.95)}
+.tabs{display:flex;gap:2px;padding:6px 8px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 10px;font-size:9px;font-weight:500;border:none;border-radius:5px 5px 0 0;cursor:pointer;font-family:'DM Sans';white-space:nowrap;background:#e4e4ea;color:#666;flex-shrink:0}
+.tab.active{background:var(--dk);color:var(--am);font-weight:700}
+.tab.scan{background:#e8f5e9;color:#2e7d32}
+.tab.scan.active{background:var(--dk);color:var(--am)}
+.panel{background:var(--card);margin:0 8px 8px;padding:12px;border-radius:0 0 7px 7px;box-shadow:0 1px 4px rgba(0,0,0,.06);min-height:50vh;display:none}
+.panel.active{display:block}
+.stitle{font-size:11px;font-weight:700;color:var(--dk);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--am);display:inline-block}
+.fr{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:2px}
+.f{flex:1;min-width:120px;margin-bottom:5px}
+.f.h{flex:0 0 calc(50% - 3px);min-width:100px}
+.f.t{flex:0 0 calc(33% - 4px);min-width:85px}
+.f label{display:block;font-size:8px;font-weight:600;color:#555;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.f input,.f select{width:100%;padding:6px 7px;border:1.5px solid #d0d0d0;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:var(--inp);outline:none;-webkit-appearance:none}
+.f input:focus,.f select:focus{border-color:var(--am);box-shadow:0 0 0 2px rgba(255,193,7,.15)}
+.upload-zone{border:2px dashed var(--am);border-radius:10px;padding:20px 12px;text-align:center;background:var(--inp);position:relative;overflow:hidden}
+.upload-zone input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:200px}
+.upload-zone .icon{font-size:36px;margin-bottom:4px}
+.upload-zone .ulabel{font-size:13px;font-weight:700;color:var(--dk);margin-bottom:3px}
+.upload-zone .hint{font-size:10px;color:#888}
+.upload-zone .cta{margin-top:10px;padding:9px 22px;background:linear-gradient(135deg,var(--am),var(--am2));color:var(--dk);border-radius:5px;display:inline-block;font-weight:700;font-size:11px;pointer-events:none}
+.upload-zone img{max-width:100%;max-height:240px;border-radius:6px}
+.upload-zone:active{background:#fff3c4}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border:2px solid var(--dk);border-radius:4px}
+.tw table{width:100%;border-collapse:collapse;min-width:760px}
+.tw th{background:var(--dk);color:#e8e8e8;padding:5px 2px;font-size:7.5px;font-weight:600;text-align:center;border-right:1px solid #2a2a4a;white-space:pre-line;line-height:1.3}
+.tw td{padding:1px;text-align:center;border-bottom:1px solid #e8e8e8;border-right:1px solid #f0f0f0}
+.tw tr:nth-child(even){background:#fafafa}
+.tw input,.tw select{width:100%;padding:3px 2px;border:1px solid transparent;border-radius:2px;font-size:10px;font-family:'IBM Plex Mono';background:transparent;outline:none;text-align:center;-webkit-appearance:none}
+.tw input:focus,.tw select:focus{border-color:var(--am);background:var(--inp)}
+.obs-card{border:1px solid var(--bdr);border-radius:6px;padding:10px;margin-bottom:7px;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.obs-card:nth-child(even){background:#fafafa}
+.obs-num{font-size:14px;font-weight:700;color:#bbb;min-width:20px;padding-top:3px}
+.obs-fields{flex:1;min-width:150px}
+.obs-fields input,.obs-fields select{width:100%;padding:5px 7px;border:1.5px solid #d0d0d0;border-radius:4px;font-size:10px;font-family:'IBM Plex Mono';background:var(--inp);outline:none;margin-bottom:4px;-webkit-appearance:none}
+.obs-fields input:focus,.obs-fields select:focus{border-color:var(--am)}
+.obs-fields .cr{display:flex;gap:4px;flex-wrap:wrap}
+.obs-fields .cr select,.obs-fields .cr input{width:auto;flex:1;min-width:60px}
+.obs-img{flex:0 0 100px;text-align:center}
+.obs-img .mu{border:2px dashed var(--am);border-radius:5px;padding:6px 3px;background:var(--inp);position:relative;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.obs-img .mu input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:2}
+.obs-img .mu:active{background:#fff3c4}
+.obs-img img{width:96px;height:68px;object-fit:cover;border-radius:4px;border:1px solid #ddd}
+.rm-btn{position:absolute;top:-5px;right:-5px;width:20px;height:20px;border-radius:50%;background:var(--c1);color:#fff;border:none;cursor:pointer;font-size:10px;font-weight:700;line-height:20px;z-index:2}
+/* Check items for bonding page */
+.check-item{border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:10px;background:#fafafa}
+.check-item .ci-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.check-item .ci-title{font-size:13px;font-weight:700;color:var(--dk)}
+.check-item .ci-icon{font-size:20px}
+.check-item .ci-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.check-item .ci-label{font-size:10px;font-weight:600;color:#555;min-width:80px}
+.ci-toggle{display:flex;gap:0;border-radius:5px;overflow:hidden;border:1.5px solid #d0d0d0}
+.ci-toggle button{padding:6px 14px;font-size:10px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans';background:#f0f0f0;color:#666}
+.ci-toggle button.yes.on{background:#2e7d32;color:#fff}
+.ci-toggle button.no.on{background:#d32f2f;color:#fff}
+.ci-toggle button.na.on{background:#757575;color:#fff}
+.ci-photo{margin-top:8px}
+.ci-photo .mu{border:2px dashed var(--am);border-radius:6px;padding:10px;background:var(--inp);position:relative;display:flex;align-items:center;gap:10px;cursor:pointer}
+.ci-photo .mu input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:2}
+.ci-photo .mu:active{background:#fff3c4}
+.ci-photo img{width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid #ddd}
+.ci-note{width:100%;padding:6px 8px;border:1.5px solid #d0d0d0;border-radius:4px;font-size:10px;font-family:'IBM Plex Mono';background:var(--inp);outline:none;margin-top:6px;-webkit-appearance:none}
+.ci-note:focus{border-color:var(--am)}
+.zp{background:#e8f5e9;color:var(--pass);font-weight:700;font-size:8px}
+.zw{background:#fff3e0;color:var(--warn);font-weight:700;font-size:8px}
+.zf{background:#ffebee;color:var(--fail);font-weight:700;font-size:8px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;margin-bottom:12px}
+.sb{background:#f8f8fc;border-radius:5px;padding:9px;text-align:center;border:1px solid #eee}
+.sb .v{font-size:18px;font-weight:700;font-family:'IBM Plex Mono'}
+.sb .l{font-size:7px;color:#888;font-weight:600;text-transform:uppercase}
+.cb{padding:12px;border-radius:7px;text-align:center;font-size:14px;font-weight:700;margin:12px 0}
+.cb.sat{background:#e8f5e9;border:2px solid #4caf50;color:var(--pass)}
+.cb.un{background:#ffebee;border:2px solid var(--c1);color:var(--c1)}
+.add-btn{padding:5px 11px;font-size:9px;font-weight:600;background:var(--am);color:var(--dk);border:none;border-radius:4px;cursor:pointer;font-family:'DM Sans'}
+.add-btn:active{transform:scale(.95)}
+.info{margin-top:8px;padding:7px 9px;background:#f0f4ff;border-radius:4px;border-left:3px solid #3f51b5;font-size:8px;line-height:1.7;color:#555}
+.tip{margin-top:12px;padding:8px 10px;background:#f5f5f5;border-radius:5px;font-size:8px;color:#666;line-height:1.7}
+.ai-obs-bar{background:linear-gradient(135deg,#1a237e,#283593);border-radius:10px;padding:12px;margin-bottom:14px;color:#fff}
+.ai-obs-bar .ai-title{font-size:11px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-obs-bar textarea{width:100%;box-sizing:border-box;border:2px solid rgba(255,255,255,0.3);border-radius:8px;padding:10px;font-size:13px;background:rgba(255,255,255,0.12);color:#fff;resize:none;font-family:inherit;min-height:50px}
+.ai-obs-bar textarea::placeholder{color:rgba(255,255,255,0.5)}
+.ai-obs-bar textarea:focus{outline:none;border-color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.18)}
+.ai-match-btn{background:#4caf50;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px}
+.ai-match-btn:disabled{opacity:0.5;cursor:not-allowed}
+.ai-match-btn:active:not(:disabled){transform:scale(0.98)}
+.ai-results{margin-top:10px}
+.ai-match{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:all 0.15s}
+.ai-match:active{transform:scale(0.98)}
+.ai-match .am-section{font-size:8px;color:rgba(255,255,255,0.6);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px}
+.ai-match .am-text{font-size:11px;color:#fff;line-height:1.4;margin-bottom:6px}
+.ai-match .am-meta{display:flex;gap:8px;align-items:center;font-size:9px}
+.ai-match .am-code{padding:2px 8px;border-radius:4px;font-weight:700;color:#fff}
+.am-code-c1{background:var(--c1)}.am-code-c2{background:var(--c2)}.am-code-c3{background:var(--c3)}.am-code-fi{background:var(--fi)}
+.ai-match .am-reg{color:rgba(255,255,255,0.7)}
+.ai-match:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.4)}
+.ss{margin-top:12px;padding:9px 12px;border-radius:5px;font-size:10px;font-weight:600}
+.ss.ok{background:#e8f5e9;color:var(--pass);border-left:4px solid #4caf50}
+.ss.err{background:#ffebee;color:#c62828;border-left:4px solid var(--c1)}
+.ss.ld{background:#e3f2fd;color:#1565c0;border-left:4px solid #1976d2;display:flex;align-items:center;gap:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:16px;height:16px;border:3px solid #1976d2;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0}
+.footer{margin:0 8px 8px;padding:5px 10px;background:var(--dk);border-radius:4px;display:flex;justify-content:space-between;align-items:center}
+.footer span{font-size:7px}
+.footer .fl{color:#777}
+.footer .frt{color:var(--am);font-weight:600}
+/* Modals */
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:10px;padding:18px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,.3);max-height:85vh;overflow-y:auto}
+.modal h3{font-size:13px;color:var(--dk);margin-bottom:10px}
+.modal label{font-size:9px;font-weight:600;color:#555;display:block;margin-bottom:2px;text-transform:uppercase}
+.modal input{width:100%;padding:8px;border:1.5px solid #d0d0d0;border-radius:4px;font-size:12px;font-family:'IBM Plex Mono';margin-bottom:10px;outline:none}
+.modal input:focus{border-color:var(--am)}
+.mbtn{width:100%;padding:10px;font-size:12px;font-weight:700;border:none;border-radius:5px;cursor:pointer;font-family:'DM Sans';background:linear-gradient(135deg,var(--am),var(--am2));color:var(--dk);margin-bottom:6px}
+.mbtn:active{transform:scale(.97)}
+.mbtn.red{background:#d32f2f;color:#fff}
+.mbtn.blue{background:#1976d2;color:#fff}
+.note{font-size:8px;color:#888;line-height:1.5;margin-top:6px}
+/* Save list */
+.save-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid #e0e0e0;border-radius:5px;margin-bottom:6px;background:#fafafa}
+.save-item .si-info{flex:1}
+.save-item .si-name{font-size:12px;font-weight:700;color:var(--dk)}
+.save-item .si-date{font-size:9px;color:#888}
+.save-item .si-btns{display:flex;gap:4px}
+.save-item .si-btn{padding:6px 10px;font-size:9px;font-weight:600;border:none;border-radius:3px;cursor:pointer;font-family:'DM Sans'}
+.save-item .si-btn.load{background:#1976d2;color:#fff}
+.save-item .si-btn.del{background:#d32f2f;color:#fff}
+.offline-badge{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:5px 14px;border-radius:20px;font-size:9px;font-weight:600;z-index:300;display:none}
+.install-banner{position:fixed;bottom:0;left:0;right:0;background:var(--dk);color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;z-index:150;box-shadow:0 -4px 16px rgba(0,0,0,.2)}
+.install-banner .ib-text{flex:1;font-size:11px}
+.install-banner .ib-btn{padding:7px 16px;background:var(--am);color:var(--dk);border:none;border-radius:4px;font-weight:700;font-size:11px;cursor:pointer;font-family:'DM Sans'}
+.install-banner .ib-x{background:none;border:none;color:#888;font-size:16px;cursor:pointer;padding:4px}
+.toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 20px;border-radius:20px;font-size:11px;font-weight:600;z-index:300;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.qa-grid{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.qa-btn{padding:5px 9px;font-size:8px;font-weight:600;border:1.5px solid var(--am);border-radius:4px;cursor:pointer;font-family:'DM Sans';background:var(--inp);color:var(--dk)}
+.qa-btn:active{background:var(--am);transform:scale(.95)}
+.bs-sel{display:flex;gap:0;border-radius:5px;overflow:hidden;border:1.5px solid var(--dk);margin-bottom:8px;flex-wrap:wrap}
+.bs-sel button{padding:5px 8px;font-size:8px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans';background:#e8e8ea;color:#666;flex:1;min-width:70px}
+.bs-sel button.on{background:var(--dk);color:var(--am)}
+.tw tr.sel{background:#fff3e0!important}
+.tw tr.sel td{background:#fff3e0!important}
+.sel-bar{display:flex;gap:6px;align-items:center;padding:6px 10px;background:#fff3e0;border:1px solid var(--am);border-radius:5px;margin-bottom:6px}
+.sel-bar span{font-size:10px;font-weight:600;color:var(--dk);flex:1}
+.sel-bar button{padding:4px 10px;font-size:9px;font-weight:600;border:none;border-radius:3px;cursor:pointer;font-family:'DM Sans'}
+.sel-bar .del{background:#d32f2f;color:#fff}
+.sel-bar .clr{background:#757575;color:#fff}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="left"><div class="brand">EICR + AI Board Scanner</div><div class="title">BS 7671:2018+A2:2022</div></div>
+  <div class="right">
+    <button class="hbtn ld" onclick="showLoad()">📂</button>
+    <button class="hbtn sv" onclick="showSave()">💾</button>
+    <button class="hbtn st" onclick="showSettings()">⚙</button>
+    <button class="hbtn pdf" onclick="generatePDF()">📄 PDF</button>
+  </div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="panel active" id="p-details"></div>
+<div class="panel" id="p-supply"></div>
+<div class="panel" id="p-scan"></div>
+<div class="panel" id="p-circuits"></div>
+<div class="panel" id="p-results"></div>
+<div class="panel" id="p-bonding"></div>
+<div class="panel" id="p-observations"></div>
+<div class="panel" id="p-summary"></div>
+<div class="footer"><span class="fl">BS 7671:2018+A2:2022 | 18th Edition</span><span class="frt" id="footerCompany">247 Local Electrician — Bilston</span></div>
+
+<!-- Settings Modal -->
+<div class="modal-bg" id="settingsModal">
+<div class="modal">
+  <h3>⚙ Settings</h3>
+  <label>Company Name</label><input id="defCompany" placeholder="247 Local Electrician — Bilston">
+  <div class="note" style="margin:6px 0;font-size:9px">🔒 API key secured server-side via Cloudflare Worker</div>
+  <label>Inspector Name</label><input id="defInspector" placeholder="Your name">
+  <label>Qualifications</label><input id="defQuals" placeholder="C&G 2391">
+  <label>Registration No.</label><input id="defReg" placeholder="NAPIT/NICEIC No.">
+  <button class="mbtn" onclick="saveSettings()">Save Settings</button>
+  <div class="note">🔒 Protected by Cloudflare Access. API key stored securely on server.</div>
+</div></div>
+
+<!-- Save Modal -->
+<div class="modal-bg" id="saveModal">
+<div class="modal">
+  <h3>💾 Save Certificate</h3>
+  <label>Certificate Name</label><input id="saveName" placeholder="e.g. 12 High St - Smith">
+  <button class="mbtn" onclick="doSave()">Save Certificate</button>
+  <div class="note">Saved locally on this device. Use PDF export for permanent records.</div>
+</div></div>
+
+<!-- Load Modal -->
+<div class="modal-bg" id="loadModal">
+<div class="modal">
+  <h3>📂 Saved Certificates</h3>
+  <div id="saveList"></div>
+  <button class="mbtn" style="margin-top:10px" onclick="newCert()">+ New Blank Certificate</button>
+  <button class="mbtn red" style="margin-top:4px" onclick="document.getElementById('loadModal').classList.remove('show')">Close</button>
+</div></div>
+
+<div class="offline-badge" id="offlineBadge">📴 Offline — AI scan unavailable</div>
+<div class="install-banner" id="installBanner">
+  <div class="ib-text">📱 Install EICR Scanner to home screen</div>
+  <button class="ib-btn" id="installBtn">Install</button>
+  <button class="ib-x" onclick="document.getElementById('installBanner').style.display='none'">✕</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="obs_db.js"></script>
+<script>
+// ===== SERVICE WORKER =====
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(e=>console.log('SW',e))}
+
+// ===== PWA INSTALL =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').style.display='flex'});
+document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBanner').style.display='none'});
+
+// ===== OFFLINE =====
+function updateOnline(){document.getElementById('offlineBadge').style.display=navigator.onLine?'none':'block'}
+window.addEventListener('online',updateOnline);window.addEventListener('offline',updateOnline);updateOnline();
+
+// ===== IMAGE COMPRESSION =====
+function compressImage(file,maxW,quality){
+  maxW=maxW||1600;quality=quality||0.7;
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=function(){
+      const img=new Image();
+      img.onload=function(){
+        try{
+          const canvas=document.createElement('canvas');
+          let w=img.width,h=img.height;
+          // Limit source dimensions to prevent mobile canvas memory crashes
+          const maxSrc=4096;
+          if(w>maxSrc||h>maxSrc){const s=Math.min(maxSrc/w,maxSrc/h);w=Math.round(w*s);h=Math.round(h*s)}
+          if(w>maxW){h=Math.round(h*(maxW/w));w=maxW}
+          canvas.width=w;canvas.height=h;
+          const ctx=canvas.getContext('2d');
+          if(!ctx){reject(new Error('Canvas context failed'));return}
+          ctx.drawImage(img,0,0,w,h);
+          const result=canvas.toDataURL('image/jpeg',quality);
+          // Free canvas memory
+          canvas.width=0;canvas.height=0;
+          resolve(result);
+        }catch(e){reject(e)}
+      };
+      img.onerror=()=>reject(new Error('Image load failed'));
+      img.src=reader.result;
+    };
+    reader.onerror=()=>reject(new Error('File read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===== TOAST =====
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
+
+// ===== SETTINGS =====
+function getApiKey(){return 'server-side'}
+function getCompanyName(){return localStorage.getItem('eicr_company')||'247 Local Electrician — Bilston'}
+function showSettings(){
+  document.getElementById('defCompany').value=localStorage.getItem('eicr_company')||'';
+  // API key is server-side, no input needed
+  document.getElementById('defInspector').value=localStorage.getItem('eicr_inspector')||'';
+  document.getElementById('defQuals').value=localStorage.getItem('eicr_quals')||'';
+  document.getElementById('defReg').value=localStorage.getItem('eicr_reg')||'';
+  document.getElementById('settingsModal').classList.add('show');
+}
+function saveSettings(){
+  localStorage.setItem('eicr_company',document.getElementById('defCompany').value.trim());
+  // API key is server-side, no local storage needed
+  localStorage.setItem('eicr_inspector',document.getElementById('defInspector').value.trim());
+  localStorage.setItem('eicr_quals',document.getElementById('defQuals').value.trim());
+  localStorage.setItem('eicr_reg',document.getElementById('defReg').value.trim());
+  document.getElementById('settingsModal').classList.remove('show');
+  if(!gv('inspectorName'))sv('inspectorName',localStorage.getItem('eicr_inspector')||'');
+  if(!gv('inspectorQual'))sv('inspectorQual',localStorage.getItem('eicr_quals')||'');
+  if(!gv('inspectorReg'))sv('inspectorReg',localStorage.getItem('eicr_reg')||'');
+  updateFooter();
+  toast('Settings saved');
+}
+function updateFooter(){document.querySelector('.footer .frt').textContent=getCompanyName()}
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
+
+// ===== DATA =====
+// Zs max tables per BS standard (0.4s disconnection) from Table 41.2/41.3/41.4
+const ZS_TABLES={
+  'BS 60898':{B5:8.74,B6:7.28,B10:4.37,B16:2.73,B20:2.19,B25:1.75,B32:1.37,B40:1.09,B45:.97,B50:.87,C5:4.37,C6:3.64,C10:2.19,C16:1.37,C20:1.09,C25:.87,C32:.68,C40:.55,C45:.48,C50:.44,D5:2.19,D6:1.82,D10:1.09,D16:.68,D20:.55,D25:.44,D32:.34,D40:.27,D45:.24,D50:.22},
+  'BS EN 61009':{B5:8.74,B6:7.28,B10:4.37,B16:2.73,B20:2.19,B25:1.75,B32:1.37,B40:1.09,B45:.97,B50:.87,C5:4.37,C6:3.64,C10:2.19,C16:1.37,C20:1.09,C25:.87,C32:.68,C40:.55,C45:.48,C50:.44,D5:2.19,D6:1.82,D10:1.09,D16:.68,D20:.55,D25:.44,D32:.34,D40:.27,D45:.24,D50:.22},
+  'BS 88':{B6:5.00,B10:3.00,B16:1.88,B20:1.50,B25:1.20,B32:.94,B40:.75,B45:.67,B50:.60,C6:5.00,C10:3.00,C16:1.88,C20:1.50,C25:1.20,C32:.94,C40:.75,C45:.67,C50:.60,D6:5.00,D10:3.00,D16:1.88,D20:1.50,D25:1.20,D32:.94,D40:.75,D45:.67,D50:.60},
+  'BS 3871 Type 2':{B5:8.74,B6:7.28,B10:4.37,B16:2.73,B20:2.19,B25:1.75,B32:1.37,B40:1.09,B45:.97,B50:.87,C5:4.37,C6:3.64,C10:2.19,C16:1.37,C20:1.09,C25:.87,C32:.68,C40:.55,C45:.48,C50:.44}
+};
+let selectedBsStd='BS 60898';
+const ZS_MAX=ZS_TABLES[selectedBsStd];
+function getZsMax(dev,rating){const tbl=ZS_TABLES[selectedBsStd]||ZS_TABLES['BS 60898'];return tbl[dev+rating]||null}
+
+// Quick-add circuit presets: {desc, dev, rating, live, cpc, disc, idn, pts, ref}
+const PRESETS={
+  'Smoke Detectors':{desc:'Smoke Detectors',dev:'B',rating:'6',live:'1.0',cpc:'1.0',disc:'0.4',idn:'N/A',pts:'',ref:'C'},
+  'Lighting':{desc:'Lighting',dev:'B',rating:'6',live:'1.0',cpc:'1.0',disc:'0.4',idn:'30',pts:'',ref:'C'},
+  'Ring Final':{desc:'Ring Final (Sockets)',dev:'B',rating:'32',live:'2.5',cpc:'1.5',disc:'0.4',idn:'30',pts:'',ref:'C'},
+  'Radial (Sockets)':{desc:'Radial (Sockets)',dev:'B',rating:'20',live:'2.5',cpc:'1.5',disc:'0.4',idn:'30',pts:'',ref:'C'},
+  'Cooker':{desc:'Cooker',dev:'B',rating:'32',live:'6.0',cpc:'2.5',disc:'0.4',idn:'N/A',pts:'1',ref:'C'},
+  'Shower':{desc:'Shower',dev:'B',rating:'40',live:'6.0',cpc:'2.5',disc:'0.4',idn:'30',pts:'1',ref:'C'},
+  'Boiler':{desc:'Boiler',dev:'B',rating:'6',live:'1.0',cpc:'1.0',disc:'0.4',idn:'N/A',pts:'1',ref:'C'},
+  'Water Heater':{desc:'Water Heater (Immersion)',dev:'B',rating:'16',live:'2.5',cpc:'1.5',disc:'0.4',idn:'N/A',pts:'1',ref:'C'},
+  'Cooker (45A)':{desc:'Cooker',dev:'B',rating:'45',live:'10.0',cpc:'4.0',disc:'0.4',idn:'N/A',pts:'1',ref:'C'},
+  'Shower (50A)':{desc:'Electric Shower',dev:'B',rating:'50',live:'10.0',cpc:'4.0',disc:'0.4',idn:'30',pts:'1',ref:'C'},
+  'EV Charger':{desc:'EV Charger',dev:'B',rating:'32',live:'6.0',cpc:'2.5',disc:'0.4',idn:'30',pts:'1',ref:'C'},
+  'Garage/Outbuilding':{desc:'Garage/Outbuilding',dev:'B',rating:'20',live:'2.5',cpc:'1.5',disc:'0.4',idn:'30',pts:'',ref:'B'},
+  'Towel Rail':{desc:'Heated Towel Rail',dev:'B',rating:'6',live:'1.0',cpc:'1.0',disc:'0.4',idn:'30',pts:'1',ref:'C'},
+  'Extractor Fan':{desc:'Extractor Fan',dev:'B',rating:'6',live:'1.0',cpc:'1.0',disc:'0.4',idn:'30',pts:'1',ref:'C'},
+  'Freezer/Fridge':{desc:'Freezer/Fridge',dev:'B',rating:'16',live:'2.5',cpc:'1.5',disc:'0.4',idn:'30',pts:'1',ref:'C'}
+};
+
+// ===== OBSERVATION DATABASE (733 items, 25 sections) =====
+const OBS_DB={"1":{"n":"Intake equipment","items":["Service cable shows signs of overheating.","Cables have signs of scorching (bypass / tampering).","Service cable armouring has been damaged / corroded.","Lead sheath of the service cable is split / damaged.","Connection to bypass the metering equipment.","Service head has black pitch/tar residue leaking from cable entry/side seals or showing signs of continued leakage.","Service cut-out fuse-carrier seal, not in place and properly secured.","The service cut-out seal has been interfered with to allow isolation of the electrical supply.","Service cut-out seal has been damaged - exposed live parts.","Service cut-out has been damaged.","Service cut-out has double-pole fuses.","Neutral connection has exposed parts.","Service cut-out at risk of flooding - in known flood area.","Service cut-out under rated for installation.","Service cut-out not securely fixed.","Service cut-out shows signs of overheating / thermal damage.","External cabinet / enclosure subject to damage.","Earthing conductor connects to a single stud connection with other protective conductors. See Regulation 132.10; 526.2.","The earthing conductor termination to the supply cable is corroded.","Incorrect connection of earthing conductor to TN-S neutral terminal.","Service cable earth connection not secured.","Distributor earth conductor appears undersized.","No distributor earth connection between service cable and MET.","Incorrect connection of earthing conductor to TN-S service cable.","The cross section area of the tails connecting the meter to the consumer unit/distribution board do not meet the minimum requirements of 25mm.","Meter tails have not been provided with an outer sheath or other means of protecting the conductors. See Regulation 521.10.1.","The distance between the service cut-out via the meter terminals to the consumer unit/distribution board exceeds 3m without the provision or protection against fault current.","Meter tails are not adequately supported. See Regulation 522.8.5.","Meter tails have exposed live conductors.","Meter tails bending radius is tighter than acceptable levels. Signs of thermal or mechanical damage. See Regulation 522.8.3; 642.3(vii).","Meter tails block equipment access. See Regulation 132.12.","Excessive strain on meter tail terminations - possible issue with conductor terminal capacity. See Regulation 522.8.5","Meter tails have been installed within a prescribed zone, at a depth of less than 50mm with no RCD protection in accordance with Regulation 415.1.1, or mechanical protection in accordance with 522.6.204. See Regulations 522.6.204; 522.6.202","Supplier side of isolator, terminal access plate securing seal not in place / has been tampered with.","Meter tails not adequately supported throughout their length, possible strain on terminations which may lead to loose connections and overheating. See Regulation 522.8.5","Metering equipment has been damaged.","Overheating of metering equipment.","Underrated metering equipment.","Access restrictions to metering equipment.","Metering equipment has been damaged and has exposed live parts.","On supplier side of isolation switch, terminal access plate securing seal is missing/has been tampered with.","Isolator enclosure has not been provided with a blanking plate for an unused way. See Regulation  416.2.3, 134.1.1","Isolator/switch disconnector enclosure not made of a non-combustible material - no thermal damage. See Regulation 651.2(ii).","The isolator enclosure has live exposed parts. See Regulation 416.1.","The isolator is underrated. See Regulation 133.2.2.","Isolator has not been provided with identification. See Regulation 514.11.1.","Meter terminal access plate securing seal, not in place and properly secured.","Isolator/switch disconnector enclosure not made of a non-combustible material - thermal damage. See Regulation 651.2(ii).","The consumer's isolator has not been provided with a blanking plate / cover for an unused way. See Ruegulation 416.2.3, 134.1.1","The consumer's isolator and / or switch disconnector enclosure is not non-combustible - no thermal damage. See Regulation 654.2(11)","The consumer's isolator and / or switch disconnector enclosure is not non-combustible - thermal damage. See Regulation 654.2(11)","The consumer's isolator enclosure has exposed live parts. See Regulation 416.1","The consumer's isolator is underrated. See Regulation 133.2.2","The consumer's isolator has not been provided with identification. See Regulation 514.11.1","The meter tails have not been provided with an outer sheath or other means of protecting the conductors. See Regulation 521.10.1","Non approved connectors (Line Tap(s)) fitted to meter tails. See Regulation 526.5","The consumer's meter tails have not been adequately supported. See Regulation 522.8.5","The consumer's meter tails have exposed live conductors.","The consumer's meter tails bending radius, tighter thanacceptable levels. See Regulation 522.8.3","The consumer's meter tails bloack equipmet access. See Regulation 132.12","The consumer's meter tails bending radius, tighter than acceptable levels, signs of thermal or mechanical damage. See Regulation 522.8.3, 642.3(vii)","Excessive strain on consumer's meter tails terminations - possible issue with conductor termination capability. See Regulation 522.8.5","Consumer's meter tails installed within a prescribed zone, at less than 50mm depth, but do not have RCD protection in accordance with 415.1.1, or mechanical protection in accordance with 522.6.204. See Regulations 522.6.204, 522.6.202","Consumer's meter tails not adequately supported throughout their length, possible strain on terminations, which may lead to loose connections and overheating. See Regulation 522.8.5"]},"2":{"n":"Other sources of supply","items":["No local isolation switch to isolate microgenerator supply from public supply. See Regulation 551.7.6.","No provision of generator prospective fault current ratings. See Regulation 551.2.2.","Generator not provided with suitable means of connection to earth. See Regulation 551.4.3.2.1.","Where generator is used as a switched alternative to the suppliers TN system, no means of a connection to earth. See Regulation 551.4.3.2.1.","Portable generating set directly supplying final circuits/socket outlets not provided with RCD protection rated at 30mA or less. See Regulation 551.4.4.2."]},"3":{"n":"Earthing / bonding arrangements","items":["There is no earthing conductor installed from the TN-S supply cable. See Regulation 542.1.2.1.","There is no earthing conductor installed from the TN-C-S service cut-out. See Regulation 542.1.2.2.","No earthing conductor installed from the TT earth electrode. See Regulation 542.2.1.3.","Unsuitable products in use as an earth electrode See Regulation 542.2.2.","Termination to earth electrode not protected against corrosion. See Regulation 542.3.2.","Connection of earthing conductor to earth electrode not reliably secured. See Regulation 542.3.2.","The earthing conductor connection has not been provided with a label. See Regulation 514.13; 514.1.2.","Earth electrode termination has not been installed in a suitable enclosure. See Regulation 542.3.2.","Main Earthing Terminal (MET) has not been provided with a 'Safety Electrical Connection - Do Not Remove' label. See Regulation 514.13.1.","Earthing connection 'Safety electrical connection do not remove' label not provided at earth electrode. See Regulation 514.1.2","Earthing conductor(s) not identified. See Regulation 514.4.2.","Earthing conductor(s) connected to the main earth bar not identified. See Regulation 514.1.2.","The bonding connection has not been provided with a label. See Regulations 514.1.2; 514.13.1.","Unable to determine cross sectional area (csa) of the bare stranded earthing conductor. See Regulation 543.1.1.","Main earthing conductor undersized. See Regulation 543.1.1.","The main earthing terminal is not accessible at the intake position. See Regulation 543.3.2.","Main earthing terminal / bar damaged. See Regulation 542.3.2.","Main earth terminal/bar poor connections. See Regulation 542.3.2.","Main earthing terminal not provided. See Regulation 542.4.1.","Facility (where required) not provided for disconnection of earthing conductor for testing purposes. See Regulation 542.4.2.","Main earthing terminal unsuitable for installed conductors. See Regulation 542.4.2.","No means of disconnection of the earthing conductor, by means of a tool. See Regulation 542.4.2.","Unable to determine the bonding conductor cross-sectional area (csa). See Regulation 544.1.1.","The main protective conductor to the installation pipe(s) (water / gas / oil etc) is a 6mm2 conductor, without thermal damage and the installation is a TN-C-S supply. See Regulation 544.1.1.","The cross-sectional area (csa) of the main protective bonding conductors does not meet the minimum requirements. See Regulation 544.1.1.","Main protective bonding conductor incorrectly sized for a TN-S system. See Regulation 544.1.1.","Main protective bonding conductor incorrectly sized for a TN-C-S / PME system. See Regulation 544.1.1.","Main protective bonding conductor incorrectly sized for a TT system. See Regulation 544.1.1.","There is no main protective bonding conductor installed to the installation pipe(s) (water / gas / oil extraneous conductive-parts, etc). See Regulation 411.3.1.2.","No main protective bonding conductor installed to the central heating system where required (industrial / commercial system). See Regulation 411.3.1.2 (iv).","Common main protective conductor for installation not continuous. See Regulation 528.3.3.","The main protective bonding conductor installed to the installation pipe(s) (water / gas / oil / extraneous conductive-parts, etc) and heating has been utilised as the means of earthing. See Regulation 543.2.3.","Main protective bonding connection made with an inappropriate termination. See Regulation 526.1.","Extraneous parts (water/gas/oil etc) emerge in more than one place and do not have protective bonding at each point it / they emerge(s) within the installation. See Regulation 411.3.1.2.","Supplementary bonding connection made with inappropriate termination. See Regulation 526.1.","Supplementary bonding connection is not accessible. See Regulation 543.3.2.","The main protective conductor to the installation pipe(s) (water / gas / oil etc) is a 6mm2 conductor, with thermal damage and the installation is a TN-C-S supply. See Regulation 544.1.1.","The main protective bonding top the installation pipe(s) (water / gas / oil etc) is less than 6mm2. See Regulation 544.1.1","Main protective bonding conductor has not been connected to the incoming installation pipe(s) (water / gas / oil / extraneous conductive-parts, etc) at the point of entry to the premises. See Regulations 411.3.1.2, 544.1.2","There has been no main protective bonding conductor installed to the central heating system, where required (domestic boiler without manufacturers continuity of earth manifold). See Regulation 411.3.1.2","There has been no main protective bonding conductor installed to the air conditioning system, wher required. See Regulation 411.3.1.2 (iv)","Lightning Protection System (LPS), not tconnected to the Main Earth Terminal (MET). See Regulations 411.3.1.2, 542.4 (iv)","No main protective bonding installed to extraneous conductive-parts. See Regulation 411.3.1.2","No protective bonding installed to exposed-conductive-parts (where required). See Regulations 134.1.1, 411.3.1.2, 544","Recessed metal back box has no fixed lug(s), no earth fly-lead and the accessory is plastic. See Regulation 526.1","Recessed metal back box has no fixed lug(s), no earth fly-lead and the accessory has a metal face plate. See Regulation 526.1","Recessed metal back box has 1 fixed lug, and 1 adjustable lug, no earth fly-lead, and the accessory is plastic. see Regulation 526.1","Recessed metal back box has 1 fixed lug, and 1 adjustable lug, no arth fly-lead, and the accessory has a metal face plate whose fixing eyelet is NOT in contact with the earthing facility on this accessory. See Regulation 526.1","Recessed metal back box has 1 fixed lug, and 1 adjustable lug, no arth fly-lead, and the accessory has a metal face plate whose fixing eyelet is in contact with the earthing facility on this accessory. See Regulation 526.1"]},"4":{"n":"Consumer units / distribution boards","items":["DB / CU is not accessible due to the in-built cupboard. See Regulations 132.12; 513.1.","The DB / CU has restricted access due to storage materials. See Regulation 132.12; 513.1.","The DB / CU is mounted at a height which prevents ease of access to user. See Regulation 513.1.","Cables are supporting the DB / CU where fixings have come loose. See Regulation 134.1.1.","DB / CU cover not provided with adequate number of fixings - cover in place. See Regulation 134.1.1.","DB / CU cover not provided with fixings. See Regulation 134.1.1.","DB / CU cover not provided with manufacturers fixings. See Regulation 134.1.1.","DB / CU cover not provided with manufacturers fixings - sharp edge screws. See Regulation 134.1.1.","DB / CU cover not present / missing, access to live parts. See Regulations 416.2.1; 134.1.1.","DB / CU cover not present / missing,  NO access to live parts. See Regulation 416.2.1; 134.1.1.","DB / CU not fixed solidly to supporting structure, unlikely to fall. See Regulations 133.3; 134.1.1.","DB / CU not fixed solidly to supporting structure, likely to fall, method of fixing failed or totally inadequate. See Regulations 133.3; 134.1.1.","There is a blank missing, allowing access to live parts. See Regulation 416.2.1.","Top of the DB / CU has an unused opening exceeding IP4X with no access to live parts. See Regulation 416.2.2.","Top of the DB / CU has an unused opening exceeding IP4X, access to live parts. See Regulation 416.2.2.","Top of the enclosure / isolator has an unused opening exceeding IP4X, access to live parts. See Regulation 416.2.2.","Side, bottom or front of DB / CU has an unused opening exceeding IP2X. See Regulation 416.2.1.","Side, bottom or front of DB / CU has an unused opening exceeding IP2X, access to live parts. See Regulation 416.2.1.","DB / CU not suitable for location with moisture or dust ingress. See Regulation 522.","DB / CU not installed suitable for properties historically affected by flooding. See Regulation 522.","An incorrect rubber bung / blank has been used which can be pushed in / pulled out, without the use of a tool, giving access to live parts. See Regulation 416.2.1.","Blank spaces / spare ways in DB / CU have pvc tape applied as a barrier - no access to live parts with tape removed. See Regulation 134.1.1; 416.2.3.","Blank spaces / spare ways in DB / CU have pvc tape applied as a barrier - access to live parts with tape removed. See Regulations 134.1.1; 416.2.3.","DB / CU has signs of thermal damage. See Regulations 526.4; 526.5; 651.2(ii).","The DB / CU has excessive hole in the rear of the enclosure fixed to flammable surface and has signs of thermal damage. See Regulations 527.1.1; 651.2(ii).","The DB / CU has excessive hole in the rear of the enclosure fixed to flammable surface and has no signs of thermal damage. See Regulation 527.1.1; 651.2(ii).","Main switch has not been properly mounted, loose, NO signs of thermal damage. See Regulation 643.10.","Main switch has not been properly mounted, loose, signs of thermal damage. See Regulation 643.10.","The switch / isolator has not been properly mounted, loose and relying on cable termination for support. See Regulation 643.10.","The neutral conductor has not been provided with isolation where a single pole RCD has been used as the main switch. See Regulation 462.1.201.","Consumer unit is not metal or installed in a non-combustible cabinet, showing NO signs of thermal damage, located under a wooden or combustible public stairwell forming part of an escape route from a dwelling area. See Regulation 421.1.201.","Consumer unit in a domestic household premises is not metal or installed in a non-combustible cabinet, showing NO signs of thermal damage, located in the sole means of escape for a dwelling area. See Regulation 421.1.201.","Consumer unit in a domestic household premises is not metal or installed in a non-combustible cabinet, showing signs of thermal damage. See Regulation 421.1.201; 651.2(ii).","Consumer unit in a domestic household premises is not metal or installed in a non-combustible cabinet, showing NO signs of thermal damage. See Regulation 421.1.201.","Consumer unit in a detached garage or other non-dwelling out building is not metal.","Consumer unit in an attached garage with a shared roof space, with a fire break, is not metal. See Regulation 421.1.201.","Consumer unit in an attached garage with a shared roof space, without a fire break is not metal. See Regulation 421.1.201.","A smart home control panel has been wired direct from \"Henley blocks\" with no main linked switch. See Regulation 462.1.201.","Poly-phase circuit has non-linked single phase protective devices, instead of a linked 3 phase device, where the loss of a phase to a piece of multi phase equipment may cause harm. See Regulation 537.2.6.","The main switch does not provide isolation of the installation. See Regulation 643.10.","The circuit breaker does not provide isolation for the circuit. See Regulation 643.10.","AFDD test button fails to operate the device. See Regulation 643.10.","The circuit breaker / protective device is identifying the incorrect circuit. See Regulations 514.8.1; 514.9.1.","Circuit breaker / protective device has not been identified for its purpose. See Regulations 514.8.1; 514.9.1.","There has been no provision of circuit information. See Regulation 514.9.","There is no Solar Photovoltaic (PV) installation warning label at the DB / CU. See Regulation 514.15.1.","There is no alternative supply installation warning label at the DB / CU. See Regulation 514.15.1.","There is no DB / CU ID label where more than one DB / CU is present. See Regulation 514.9.","The source of isolation has not been identified on the DB / CU. See Regulation 514.9.","The high-integrity earthing connection warning label has not been provided on the DB / CU. See Regulation 543.7.1.205.","Voltage warning label where voltage exceeds 230V to Earth has not been provided. See Regulation 514.10.1.","Presence of sensitive equipment within the installation - no circuit chart information. See Regulation 541.9.1, Appendix 6.","Absence of periodic inspection label at origin. See Regulation 514.12.1.","Live part in an enclosure not isolated by a single device - no warning label. See Regulations 514.11.1; 537.1.5.","Installation has more than one supply - no warning label. See Regulation 514.11.1.","Enclosure has more than one supply - no warning labe. See Regulations 514.11.1; 537.1.2.","Isolator / equipment has no clear indication of purpose - no identification label. See Regulation 514.1.1.","Mechanical maintenance isolator / equipment - no identification label. See Regulation 537.3.2.4.","Firefighters switch has not been provided with a durable identification label. See Regulation 537.4.4.","Absence of label for SPD fitted within the installation. See Regulation 514.16.1","Function of isolator / switch has not been provided with a durable identification label. See Regulation 537.2.7.","Notice warning of voltages exceeding 230V between simultaneously accessible equipment not provided.","Devices fitted to control panel / enclosure may not be compatible with original manufacturers equipment - IP rating NOT compromised - NO access to live parts - NO signs of thermal damage (manufacturers data required to confirm compatibility). See Regulations 416.2; 522; 536.4.203.","Devices fitted to control panel / enclosure are not compatible with original manufacturers equipment - IP rating compromised - NO access to live parts. See Regulations 416.2; 522; 536.4.203.","Devices fitted to control panel / enclosure are not compatible with original manufacturers equipment - IP rating compromised - access to live parts . See Regulations 416.2; 522; 536.4.203.","Devices fitted to control panel / enclosure are not compatible with original manufacturers equipment  - signs of thermal damage. See Regulations 421.1.6; 522; 536.4.203.","Old fuse box DB / CU has fusing of both line and neutral conductors (double pole fusing). See Regulations 132.14.1; 530.3.3.","The sharp metal edging of the containment have not been provided with protection. See Regulations 522.8.1; 522.8.11.","The cable gland termination has been damaged and the conductors have not been protected against strain on the terminations. See Regulations 526.1; 522.8.5.","The conductors have not been protected against strain on the terminations. See Regulations 526.1; 522.8.5.","The line and neutral conductors have been installed through different points of entry in the steel enclosure - signs of overheating. See Regulation 521.5.1.","The line and neutral conductors have been installed through different points of entry in the steel enclosure - NO signs of overheating. See Regulation 521.5.1.","The line and neutral consumer meter tails have been installed through a different point of entry to the earthing conductor in the steel DB / CU / enclosure - signs of overheating. See Regulation 521.5.1.","The line and neutral consumer meter tails have been installed through a different point of entry to the earthing conductor in the steel DB / CU / enclosure - NO signs of overheating. See Regulation 521.5.1.","Cable terminations at busbars not correctly oriented - possible mechanical weakness. See Regulation 526.1.","Cable terminations at busbars not correctly oriented - hot spot found on thermal survey, possible loose connection. See Regulation 526.1.","Cable terminations at busbar show hot spots on thermal survey - possible loose connection. See Regulation 526.1.","Cable terminations at busbar - signs of thermal damage. See Regulation 526.1.","Switchgear terminations - hot spot(s) on thermal survey, possible loose connections. See Regulation 526.1.","Incorrect cable termination at busbar / switchgear - possible loose connection. See Regulation 526.1.","Incorrect cable termination at busbar / switchgear - hot spots on thermal survey - possible loose connection. See Regulation 526.1.","Incorrect cable termination at busbar / switchgear - signs of thermal damage. See Regulation 526.1.","Method of connection is not compatible with the number / shape / csa of conductors being connected / joined - NO signs of thermal damage - NO hot spots on thermal imaging survey. See Regulation 526.2.","Method of connection is not compatible with the number / shape / csa of conductors being connected / joined - signs of thermal damage - hot spots on thermal imagining survey. See Regulation 526.2.","Inappropriate switching arrangement for standby / backup generator. Generator can operate in parallel with the public supply. See Regulation 551.6.1.","Standby / backup generator connected to incoming circuit breaker in DB - no means of isolating the public supply - risk of standby / backup generator operating in parallel with the public supply. See Regulation 551.6.1.","Standby / backup generator connected to installation final circuit, at socket outlet / fused spur / accessory,  no means of isolating the public supply. Risk of standby / backup generator operating in parallel with the public supply. See Regulations 551.6.1; 551.7.2.","RCD protecting the supply circuit for a generator in parallel to the public supply, does not disconnect all live conductors (includes the neutral). See Regulation 551.7.1","Clip in blanking plate fitted to DB / CU (complying with BSEN 60/61439-3) is not secured with sufficient stability and durability - falls out leaving access to live parts. See Regulations 113.1; 134.1.1; 416.2.3","Clip in blanking plate fitted to DB / CU (complying with BSEN 60/61439-3) is not secured with sufficient stability and durability - falls out but NO access to live parts. See Regulations 113.1; 134.1.1; 416.2.3","Clip in blanking plate fitted to DB / CU (complying with BSEN 60/61439-3) is not secured with sufficient stability and durability and is an IP rating issue. See Regulations 113.1; 134.1.1; 416.2.3; 522","Clip in blanking plate fitted to DB / CU (complying with BSEN 60/61439-3) is not secured with sufficient stability and durability and is NOT an IP rating issue. See Regulations 113.1; 134.1.1; 416.2.3","Clip in blanking plate fitted to DB / CU (complying with BSEN 60/61439-3) in accordance with manufacturers requirements with sufficient stability and durability using either manufacturers prescribed blanks or equally secure and effective, alternative manufacturers blanks . See Regulations 113.1; 134.1.1; 416.2.3","Blank spaces / spare ways in DB / CU have no appropriate manufacturer approved blank protective barrier in place - no access to live parts. See Regulations 134.1.1; 416.2.3","The DB / CU has a crack in the protective device access flap. See Regulation 651.2 (v)","The DB / CU has a crack in the enclosure. See Regulation 651.2 (v)","Damaged enclosure, no live parts exposed. See Regulation 651.2 (v)","The switch  / isolator has not been properly mounted, loose fixings. See Regulation 643.10","Isolator for solar PV inverter, not securely mounted - loose fixings. See Regulation 643.10","Meter tails exceed 3m but no main switch with overcurrent protection has been provided at the origin. See Regulations 462.1.201; 433.2.2","RCD manual test button fails to operate the device. See Regulation 643.10","There is no RCD test label at the DB / CU. See Regulation 514.12.2","The cartridge fuse base has heat damage to the terminals. See Regulation 421.1.2","The BS 3036 fuse has incorrect gauge of fusewire. See Regulation 533.1.2.3","No SPD protection for cables traversing the external / internal zones 0 / 1 (telephone lines, TV co-ax, external circuits on the ground and from roof mounted plant etc) No LPS fitted. See Regulation 534.1","No SPD protection for cables traversing the external / internal zones 0 / 1 and structure has a fitted LPS. See Regulation 534.4.1.2","Incorrect SPD type is installed at the origin / origins of metallic services and structure has fitted Lightning Protection System (LPS). No life-safety circuit(s) under protection. See Regulation 534.4.1.3-5","Incorrect SPD type is installed at the origin / origins of metallic services and structure has LPS fitted. Life-safety circuit(s) under protection. See Regulation 534.4.1.3-5","Incorrect SPD type is installed at origin / origins where LPS is not fitted and further locations where cables cross internal zonal interfaces. No life-safety circuit(s) under protection. See Regulation 534.4.1.3-5","Incorrect SPD type is installed at origin / origins where LPS is NOT fitted and further locations where cables cross internal zonal interfaces. No life-safety circuit(s) under protection. See Regulation 534.4.1.3+5","Incorrect SPD type is installed for locations closer to the end equipment and not greater than 10m from the end equipment. No life-safety circuit(s) under protection. See Regulaiton 534.4.1.3-5","Incorrect SPD type is installed for locations closer to the end equipment and not greater than 10m from the end equipment. Life-safety circuit(s) under protection. See Regulaiton 534.4.1.3-5","kA value (Inspd) of the SPD for Type 2 SPD is rated at less than 5kA per pole in CT1 connection method. See Regulation 534.4.4.4.1-2","Type 1 SPD is not installed that takes account of the cumulative Limp values of all poles. 100kA for Lightning Protection System 1 / 2 or 50kA for Lightning Protection System 3 / 4 (10 / 350). See Regulation 534.4.4.4.1-2","Value of the installed SPD circuits protection level (Up) voltage exceeds the withstand voltage (Uw) of the installed equipment at the location of the SPD. See Table 443.2.","SPD's in the same line / circuit are not from a co-ordinated family of products. No test to prove co-ordination has been provided. See Regulation 534.4.4.5","Use of SPD, not designed for specific TT circuit protection. See Regulation 534.4.6","SPD fitted after the RCD. RCD is not type S and does not have a declared surge immunity of 3kA. Damage to RCD, in case a surge is likely. See Regulaiton 534.4.7","SPD cables exceed 0.5m and in no case, exceed 1.0m in length. See Regulation 534.4.8","SPD cables exceed 1.0m in length, not protecting life-safety equipment. See Regulation 534.4.8","SPD cables exceed 1.0m in length, protecting life-safety equipment. See Regulation 534.4.8","Correct sizing or protective conductors to and from the SPD, not less than 6mm2 for Type 2 in line with manufacturers instructions. See Regulation 534.4.10","Correct sizing of protective conductors to and from the SPD, not less than 16mm2 for Type 1 in line with manufacturers instructions. See Regulation 534.4.10","RCCB has not been selected appropriately for diversity, taking account of possible circuit loadings, and is not equal to or greater than its main supply current rating - signs of overheating and thermal damage. See Regulation 522; 536.4.202","RCCB has not been selected appropriately for diversity, taking account of possible circuit loadings, and is not equal to or greater than its main supply current rating - no signs of overheating and thermal damage. See Regulation 536.4.202","Isolator has not been selected appropriately for diversity, taking account of possible circuit loadings, and is not equal to or greater than its main supply OCPD rated current (In) signs of overheating and thermal damage. See Regulation 522; 536.4.202","Isolator has not been selected appropriately for diversity, taking account of possible circuit loadings, and is not equal to or greater than its main supply OCPD rated current (In) no signs of overheating and thermal damage. See Regulation 536.4.202","Devices fitted to DB / CU may not be compatible with original manufacturers equipment - No signs of thermal damage (manufacturers data required to confirm compatibility). See Regulation 536.4.203","Devices fitted to DB / CU may not be compatible with original manufacturers equipment - Signs of thermal damage. See Regulation 522; 536.4.203","Devices fitted to DB / CU are not compatible with original manufacturers equipment - No access to live parts. See Regulation 536.4.203","Devices fitted to DB / CU are not compatible with original manufacturers equipment - Access to live parts. See Regulation 416.2; 536.4.203","RCD protection not provided for TT earthing system. See Regulation 411.5.2","Selectivity not achieved with series-connected RCD - no safety concerns. See Regulations 531.3.2; 536.4.1.4","Selectivity not achieved with series-connected RCD - safety concerns present. See Regulations 531.3.2; 536.4.1.4","No RCD protection for socket-outlets used in supplying equipment outdoors. See Regulations 411.3.3; 643.8","No RCD protection for socket-outlets for internal use. See Regulation 411.3.3","Type AC RCD is supplying multiple outlets and not fixed equipment, where there are no DC leakage components present. See Regulation 531.3.3","RCD fitted is type AC and has pulsating DC currents present from connected equipment such as EV, PV, switch-mode power supplies (SMPS), domestic appliances with VSD's, etc which may  / will mask fault current and prevent the Type AC RCD from operating. See Regulations 411.3.2.1; 411.3.3","RCD rated at less than, or equal to, 30mA fails to operate within 300ms when subjected to 1In residual operating current. See Regulations 415.1.1; 643.8","Operation of RCD unsatisfactory - trips when subjected to 50% of residual operating current. See Regulation 415.1.1","SPD status indicator (local or remote) showing device is no longer providing overvoltage protection in accordance with 534.1 (BSEN 61634-11-12:clause 7.2.5.4) - no life-safety circuit(s) under protection. See Regulation 534.1","SPD status indicator (local or remote) showing device is no longer providing overvoltage protection in accordance with 534.1 (BSEN 61634-11-12:clause 7.2.5.4) - life-safety circuit(s) under protection. See Regulation 534.1","Generator in parallel to public supply connected to installation final circuit, at socket-outlet / fused spur / accessory. See Regulation 551.7.2"]},"5":{"n":"Final circuits","items":["Line conductor(s) incorrectly identified by colour code (incorrect line conductor colour used. See Regulation 514.3.1(i).","Line conductor(s) incorrectly identified by colour code (Non-Line conductor colour used. See Regulation 514.3.1(i).","Neutral conductor(s) incorrectly identified by colour code. See Regulation 514.4.1.","Circuit protective conductor(s) incorrectly identified by colour code. See Regulation 514.4.2.","Grey / black \"switchline\" conductor of 3 core cable not marked as brown. See Regulation 514.3.1.","Grey neutral conductor of three core cable not marked as blue. See Regulation 514.3.1.","Live conductors not marked for the distribution way number. See Regulations 134.1.3; 514.3.","Live conductors not installed in corresponding terminals within the DB / CU. See Regulation 514.9.","LV cables installed without means of support from premature collapse, in the event of a fire. See Regulation 521.10.202.","LV cables installed without means of support from premature collapse in the event of a fire, but are NOT likely to cause an entanglement hazard. See Regulation 521.10.202.","Data / CCTV / security / TV / satellite cables installed without means of support from premature collapse, in the event of a fire. See Regulation 521.10.202.","Data / CCTV / security / TV / satellite cables installed without means of support from premature collapse in the event of a fire, but are NOT likely to cause an entanglement issue. See Regulation 521.10.202.","PVC trunking / conduit installed without means of support from premature collapse, in the event of a fire. See Regulation 521.10.202","PVC trunking / conduit installed without means of support from premature collapse in the event of a fire, but are NOT likely to cause an entanglement hazard. See Regulation 521.10.202","PVC trunking in general areas not installed with internal non-combustible fixings, but NOT likely to cause an entanglement hazard. See Regulation 521.10.202.","PVC trunking in escape routes of communal areas (block of flats stairwells and communal areas etc) installed without internal non-combustible fixings. See Regulation 521.10.202","LV cables with solid conductors not adequately supported throughout their run. See Regulations 522.8.5; 521.10.202.","LV cables not adequately supported, undue mechanical stress leading to potential collapse. See Regulation 522.8.5.","LV cables not adequately supported - potential damage from their own weight. See Regulation 522.8.4","LV cables not adequately supported - evidence of damage from their own weight. See Regulation 522.8.4.","LV cables not adequately supported throughout their run. See Regulation 522.8.5; 521.10.202.","Cable has been damaged and has live exposed parts. See Regulation 416.1","The outer sheath of the cable is damaged exposing inner cores. See Regulation 416.1","Value of measured insulation resistance is below the required value stated in Table 64 (< 0.5 Megohms) measured at 250V DC test voltage for SELV / PELV. See Regulation 643.3.2.","Value of measured insulation resistance is below the required value stated in Table 64 (< 1 Megohms) measured at 250V DC - reduced test voltage. See Regulation 643.3.2.","Value of measured insulation resistance is below the required value stated in Table 64 (< 1 Megohms). See Regulation 643.3.2.","Value of measured insulation resistance is below the required value stated in Table 64 (< 1 Megohms) measured at 1000V DC test voltage for installations above 500V See Regulation 643.3.2.","Insulation has been damaged and / or missing, allowing access to live parts. See Regulation 416.1.","Knock out is missing from top of consumer unit, which gives access to live parts. See Regulation 416.1.","There is trunking lid missing exposing single insulated conductors. See Regulation 521.10.1.","6mm2 cable is underrated for 10kW shower, routed through thermal insulation. See Section 523.","Oven (in excess of 2kW output) is connected to kitchen final circuit with non-manufacturer supplied / fitted BS 1363 plug top. See Appendix 15.","Cable is underrated for design current. See Section 523.","Over-current protection has not been provided where a 32A protective device has been installed for a 2.5mm2 radial circuit. See Regulations 433.1.1; 533.2.","Over-current protective device rating exceeds the current carrying capacity of the circuit, feeding multiple outlets / accessories. See Regulations 433.1.1; 533.2.","Conductors undersized for circuit over-current protective device where overload protection is required. See Regulations 433.1.1; 533.2.","BS 3036 semi-enclosed rewireable fuse has incorrect sized fuse wire fitted with respect to the fuse carrier size and rating / circuit conductor design rating. See Regulation 533.1.2.3.","Type 1 SPD installed with conductor csa less than 6mm2. See Regulation 534.4.10.","Type 2 SPD installed with live conductors less than 2.5mm2. See Regulation 534.4.10.","RCD used as sole protective measure (no over-current protective device in circuit). See Regulations 411.3.2.1; 415.1.2.","Zs in a final circuit exceeding 32A feeding fixed connected current using equipment is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is NOT protected by an RCD. See Regulation 411.3.2.2.","Zs in a final circuit exceeding 32A feeding fixed connected current using equipment is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is protected by an RCD. See Regulation 411.3.2.2.","Zs in a final circuit NOT exceeding 32A feeding fixed connected current using equipment is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is NOT protected by an RCD. See Regulation 411.3.2.2.","Zs in a final circuit NOT exceeding 32A feeding fixed connected current using equipment is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is protected by an RCD. See Regulation 411.3.2.2.","There has been no provision of a circuit protective conductor (cpc) at the Class I light fitting. See Regulation 411.3.1.1.","There has been no provision of a circuit protective conductor (cpc) on a lighting circuit with Class II fittings and accessories. See Regulation 411.3.1.1.","No earth fly lead to metal back box for cpc where the back box does not have at least one solid lug and / or the accessory mounting fixture / screws are NOT connected by design to the cpc and the accessory or faceplate is metallic. See Regulations 411.4.2; 411.5.1.","No earth fly lead to metal back box for cpc where the back box does not have at least one solid lug and / or the accessory mounting fixture / screws are NOT connected by design to the cpc and the accessory or faceplate is plastic or non-conductive. See Regulations 411.4.2; 411.5.1.","Old 2.5mm2 twin and earth (T&E) ring final / radial circuit with a 1.0mm2 circuit protective conductor (cpc). See Regulation 543.1.1.","Earth fly lead not provided between socket fascia and metallic back box, where the conduit, trunking or metallic sheath of a cable provides the earth continuity path. See Regulation 543.2.7.","Vulcanised rubber insulated (VIR) cable showing signs of decay. See Section 522.","Vulcanised rubber insulated (VIR) cable showing NO signs of decay or damage. See Section 522.","PVC/PVC cable installed externally exposed to sunlight and other elements. See Regulations 522.1.1; 522.11.1.","Wiring system without acceptable IP rating buried in ground - exposed to moisture and water ingress. See Regulation 522.3.1.","Cables exposed to direct sunlight / external elements is not of a suitable type - NO signs of thermal damage or structural decay. See Regulation 522.11.1.","Cables exposed to direct sunlight / external elements is not of a suitable type - signs of thermal damage. See Regulation 522.11.1.","Cables exposed to direct sunlight / external elements is not of a suitable type - signs of structural decay. See Regulation 522.11.1.","Cables exposed to direct sunlight / external elements is not of a suitable type - signs of thermal damage or structural decay exposing primary insulation sheaths. See Regulation 522.11.1.","Cables exposed to direct sunlight / external elements is not of a suitable type - signs of thermal damage or structural decay exposing live conductors. See Regulation 522.11.1.","Cables without mechanical protection buried in the ground - exposed to / liable to impact damage. See Regulation 522.6.1.","Extension leads utilised due to insufficient socket-outlets. See Regulation 553.1.7.","Extension leads utilised due to insufficient socket-outlets - signs of overheating. See Regulation 553.1.7.","Multi-way adaptors utilised due to insufficient socket-outlets. See Regulation 553.1.7.","Multi-way adaptors utilised due to insufficient socket-outlets - signs of overheating. See Regulation 553.1.7.","Socket-outlet mounted too low - damage likely to occur. See Regulation 553.1.6.","Socket-outlet mounted too low - signs of mechanical damage. See Regulation 553.1.6.","Wiring system (e.g. T&E, SWA, MICC, conduit, tray, trunking, basket etc.) susceptible to external influences which may lead to potential danger throughout its normal operation - due to poor workmanship and sub-standard installation practices. See Regulation 134.1; Appendix 5.","Wiring system (e.g. T&E, SWA, MICC, conduit, tray, trunking, basket etc.) susceptible to external influences which is UNLIKELY to lead to potential danger throughout its normal operation - due to poor workmanship and sub-standard installation practices. See Regulation 134.1; Appendix 5.","Wiring system (e.g. T&E, SWA, MICC, conduit, tray, trunking, basket etc.) inappropriately installed, which may lead to potential danger throughout its normal operation - due to poor workmanship and sub-standard installation practices. See Regulation 134.1.","Wiring system (e.g. T&E, SWA, MICC, conduit, tray, trunking, basket etc.) inappropriately installed, is UNLIKELY to potential danger throughout its normal operation - due to poor workmanship and sub-standard installation practices. See Regulation 134.1.","Equipment susceptible to external influences which may lead to potential danger throughout its normal operation - due to poor workmanship and sub-standard installation practices. See Regulation 134.1; Appendix 5.","PVC/PVC cables have not been installed within a prescribed zone. See Regulation 522.6.202(i).","PVC/PVC cables have been installed diagonally from socket-outlets / accessories. See Regulation 522.6.202.","PVC/PVC cables have NOT been provided with protection against mechanical damage at the rear of stud partitions. See Regulations 522.6.202; 522.6.203; 522.6.204.","The RCD protection provided exceeds 30mA. See Regulation 411.3.3(iii).","No RCD protection for PVC/PVC cables in walls and is liable to damage. See Regulation 522.6.202.","No mechanical protection coverings for cables within stud walls less than 50mm from either side, and is liable to damage. See Regulation 522.6.202.","No RCD protection for PVC/PVC cables in metal framed partitions and is liable to damage. See Regulation 522.6.203.","No fire barriers in trunking between floors. See Regulations 527.1.2; 527.2.1.","No fire barriers between back boxes when sited back to back in fire segregating studwork. See Regulation 527.1.2.","No fire hoods fitted on open back downlighters in ground floor ceiling with no habitable room above. See Regulation 527.1.2.","No fire hoods fitted on open back downlighters in ground floor celing, with habitable room above. See Regulation 527.1.2.","No fire hoods fitted on open back downlighters in 1st floor ceilings, with no habitable room above. See Regulation 527.1.2.","No fire hoods fitted on open back downlighters in 1st floor ceilings, with habitable room above. See Regulation 527.1.2.","Holes for cables passing through ceilings, walls, floors not made to the degree of fire resistance required by its surroundings to prevent the spread of fire. See Regulation 527.2.1.","Cable trunking / conduit / cable tray / cable duct or other wiring system passes through ceilings, walls, floors and is NOT internally sealed to the degree of fire resistance required by its surroundings. See Regulation 527.2.2","Cable trunking / conduit / cable tray / cable duct or other wiring system passes through ceilings, walls, floors and is NOT externally sealed to the degree of fire resistance required by its surroundings. See Regulation 527.2.4","The cable has been de-rated (strands cut off / removed) in order to fit the terminals where the cable is terminated. See Regulations 526.1; 526.8.","Maintenance free connectors found without an enclosure. See Regulation 526.5.","Cables in trunking joined with connector block but not enclosed in junction box. See Regulation 526.5.","Line conductors for ring final circuit (r1) - no continuity of conductors. See Regulations 526.6; 643.2.1.","Neutral conductors for ring final circuit (rn) - no continuity of conductors. See Regulations 526.6; 643.2.1.","Circuit protective conductors (cpc) for ring final circuit (r2) - no continuity of conductors. See Regulations 526.6; 643.2.1.","Line conductors for ring final circuit (r1) - high resistance measured between conductors - possible loose connection. See Regulations 526.6; 643.2.1.","Neutral conductors for ring final circuit (rn) - high resistance measured between conductors - possible loose connection. See Regulations 526.6; 643.2.1.","Circuit protective conductors (cpc) for ring final circuit (r2) - high resistance measured between conductors - possible loose connection. See Regulations 526.6; 643.2.1.","Circuit protective conductor for radial circuit (R2) - no continuity of conductor. See Regulations 526.6; 643.2.1.","High resistance measured on cpc (circuit protective conductor) (R2 value) - possible loose connection. See Regulations 526.6; 643.2.1.","PVC/PVC cable sheath is too short to reach the enclosure. See Regulation 526.8.","Junction box not fully enclosing PVC/PVC cable sheath, exposed single insulated inner cores. See Regulation 526.5.","SWA cable stripped of its outer sheath and wire armouring, internal filler / cushioning PVC used as mechanical protection - filler / cushioning PVC not designed for this purpose and therefore has no mechanical protection. See Regulation 526.8.","PVC connectors have not been enclosed above downlighters. See Regulation 526.5.","Cable connection / joint in live cable(s) not made within an enclosure. Access to live  parts. See Regulation 526.5.","The steel wire strands / armouring of the SWA have not been secured in the SWA cable gland. See Regulation 522.8.5.","SWA cable entering an enclosure / DB with no SWA cable gland fitted. See Regulation 522.8.5.","Un-bushed cable entry (stranded cables) but no signs of mechanical strain or damage. See Regulation 522.8.1/5.","Un-bushed cable entry (stranded cables) showing signs of mechanical strain or damage. See Regulation 522.8.1/5.","Un-bushed cable entry (stranded cables) access to live parts. See Regulation 522.8.1/5.","Un-bushed cable entry (sheathed cables) but no signs of mechanical strain or damage. See Regulation 522.8.1/5.","Un-bushed cable entry (sheathed cables) showing signs of mechanical strain or damage. See Regulation 522.8.1/5.","Un-bushed cable entry (sheathed cables) access to live parts. See Regulation 522.8.1/5.","Un-glanded flexible cable but no signs of mechanical strain or damage. See Regulation 522.8.1/5.","Un-glanded flexible cable showing signs of mechanical strain or damage. See Regulation 522.8.1/5.","Un-glanded flexible cable access to live parts. See Regulation 522.8.1/5.","SWA cable utilising its armour as a cpc, terminated into metallic enclosure without earth fly lead and earth tab. See Regulation 543.2.7","SWA cable NOT utilising its armour as a cpc, terminated into metallic enclosure without earth fly lead and earth tab. See Regulation 543.2.7","Socket-outlet has been damaged and has live exposed parts. See Regulation 651.2(v).","Socket face showing signs of thermal damage. See Regulation 651.2(v).","Socket-outlet within houselhold or similar environments require shutters - shutters defective / not provided. See Regulation 533.1.201.","Isolator fails to operate - mechanical breakdown due to age / lack of maintenance / damage. See Regulation 651.2(v).","Covers of accessories in place but not adequately secured, e.g. securing screws loose, however a tool needed to remove cover. See Regulation 134.1.1.","Covers of accessories in place but not adequately secured, e.g. no fixings present, NO tool needed to remove. See Regulation 134.1.1.","Equipment susceptible to external influences unlikely to lead to danger throughout its normal operation due to poor workmanship and sub-standard installation practices. See Regulation 134.1.1.","Equipment inappropriately installed which is unlikely to lead to danger throughout its normal operation due to poor workmanship and sub-standard installation practices. See Regulation 134.1.1.","Light fitting installed on an outside / external wall is not weatherproof. See Regulation 512.2.","Isolator / enclosure showing signs of material breakdown and failure due to the corrosive nature of its environment. See Regulation 512.2.","Isolator fails to operate, build up of dust from its environment has caused the mechanism to jam / fail. See Regulation 512.2.","Socket-outlet is unsuitable for its environment but is showing NO signs of damage. See Regulation 512.2.","Socket-outlet is unsuitable for its environment and is showing signs of damage. See Regulation 512.2.","Socket-outlet horizontal to a free-standing cooker / individual hob, less than industry guidance of 100mm - signs of thermal damage. NOTE - (No BS 7671 requirement exists). See Regulation 512.2","Socket-outlet above a free-standing cooker / individual hob showing signs of thermal damage. See Regulation 512.2.","Socket-outlet horizontal to the bowl of a sink / wash basin, less than the industry guidance of 300mm showing signs of water damage. NOTE - No BS 7671 requirement exists. See Regulation 512.2","Socket-outlet above a free-standing cooker / individual hob not selected for the environment has signs of grease/oil contamination causing equipment material breakdown. See Regulation 512.2.","Socket-outlet above a free-standing cooker / individual hob with the potential to connect equipment or appliances - would be hazardous to disconnect when the cooker is in operation. See Regulation 512.2.","Socket-outlet above the bowl of a sink / wash basin with the potential to connect equipment or appliances, which would be hazardous if contact with water in a filled sink or running water has NO protection by an RCD not exceeding 30mA. See Regulation 512.2.","Socket-outlet above the bowl of a sink / bowl / basin not selected for the environment - signs of water ingress. See Regulation 512.2; Appendix 5.","Electrical equipment has been installed above a fixed plasterboard ceiling with no access hatch. See Regulations 132.12; 513.1.","DB / CU installed with restricted access. See Section 513; 132.12","Socket-outlet installed in a manner which may increase the risk of mechanical damage to an associated plug or its flexible cable during insertion or withdrawal. See Regulation 553.1.6.","Supply to the surge protective unit has been provided with a fuse in the neutral conductor. See Regulations 132.14; 530.3.2.","Socket-outlet found to connected / wired with reverse polarity. See Regulation 643.6(i).","Red industrial type (BSEN 60309-2) plug and socket used on 230V domestic dwelling installation. See Regulation 553.1.201","Combined length of the Live and Protective conductors to the SPD assembly exceeds 1m in length. See Regulation 534.4.8","Zs in a final circuit exceeding 63A feeding feeding one or more socket-outlets, is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is NOT protected by an RCD. See Regulation 411.3.2.2.","Zs in a final circuit exceeding 63A feeding feeding one or more socket-outlets, is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is protected by an RCD. See Regulation 411.3.2.2.","Zs in a final circuit NOT exceeding 63A feeding feeding one or more socket-outlets, is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is NOT protected by an RCD. See Regulation 411.3.2.2.","Zs in a final circuit exceeding 63A feeding feeding one or more socket-outlets, is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is protected by an RCD. See Regulation 411.3.2.2.","Metallic conduit between plastic connection boxes has no earth continuity at connection boxes, where the conduit is acting as the cpc. See Regulation 543.2.7","Enclosure or joint box not appropriate for environment - exposed to water and moisture ingress. See Regulation 522.3.1","PVC/PVC cables have been installed within a prescribed zone and is liable to damage, at less than 50mm depth but do NOT have mechanical protection. See Regulation 522.6.202-204","PVC/PVC cables have been installed within a prescribed zone and is liable to damage at less than 50mm depth and are NOT protected by an RCD in accordance with Regulation 415.1.1. See Regulations 522.6.202; 522.6.203; 522.6.204.","PVC/PVC cables have not been provided with mechanical protection under floor or above ceiling, liable to damage. See Regulations 522.6.202-204.","Socket-outlets:in areas liable to be used by ordinary persons (BA1, BA3) and children (BA2, BA3) - can be used to supply equipment outside - NO RCD protection. See Regulation 411.3.3(i)","Socket-outlets:in areas liable to be used by ordinary persons (BA1, BA3) and children (BA2, BA3) - cannot be used to supply equipment outside - NO RCD protection. See Regulation 411.3.3(i)","Socket-outlets:in areas other than those liable to be used by ordinary persons (BA1, BA3) and children (BA2, BA3) - NO RCD protection - NO Risk Assessment. See Regulation 411.3.3(ii)","RCD protection not provided for mobile equipment for use outdoors. See Regulation 411.3.3(iii)","No mechanical protection for PVC/PVC cables in metal framed partitions liable to damage. See Regulation 522.6.203","Circuit supplying luminaires in a domestic dwelling, Class I fittings, no 30mA RCD protection. See Regulation 411.3.4","Circuit supplying luminaires in a domestic dwelling, Class I fittings, RCD providing additional protection exceeds 30mA. See Regulation 411.3.4","Circuit supplying luminaires in domestic dwelling, Class II fittings, No RCD protection. See Regulation 411.3.4","The lighting control cables have been installed in the same trunking as the 230V cables, where no pre-designed segregation exists. See Regulation 528.1","The lighting control cables have been installed in the same trunking as the 230V cables, where pre-designed segregation exists but has not been utilised. See Regulaiton 528.1","The data cables have been unstalled in the same trunking as the power cables, where no pre-designed segregation exists. See Regulation 528.2","The data cables have been installed in the same trunking as the power cables, where pre-designed segragtion exists but has not been utilised. See Regulaiton 528.2","Cables have been secured to the gas installation pipe. See Regulation 528.3","Conductors of multi or fine wire construction incorrectly connected in screw terminals. See Regulation 526.9","Inner cores exposed in a PVC/T&E cable at a downlight connection. See Regulation 526.5","Plastic stuffing gland used to terminate SWA cable with inadequate connection of armour to earth. See Regulation 134.1.1","Equipment susceptible to external influences likely to lead to potential danger throughout its normal operation due to poor workmanship and sub-standard installation practices. See Regulation 134.1.1.","Equipment inappropriately installed which may lead to potential danger throughout its normal operation due to poor workmanship and sub-standard installation practices. See Regulation 134.1.1.","Cable gland is not suitable for external use allowing the ingress of water / moisture. See Regulation 522.3","Socket-outlet horizontal to a free-standing cooker / individual hob, less than industry guidance of 100mm - no signs of thermal damage. NOTE - (No BS 7671 requirement exists). See Regulation 512.2","Socket-outlet horizontal to a free-standing cooker / individual hob, less than industry guidance of 100mm - no signs of thermal damage, protected by RCD less than or equal to 30mA. NOTE - (No BS 7671 requirement exists). See Regulation 512.2","Socket-outlet above a free-standing cooker / individual hob showing no signs of thermal damage. See Regulation 512.2.","Socket-outlet horizontal to the bowl of a sink / wash basin, less than the industry guidance of 300mm showing no signs of water damage. NOTE - No BS 7671 requirement exists. See Regulation 512.2","Socket-outlet horizontal to the bowl of a sink / wash basin, less than the industry guidance of 300mm showing no signs of water damage. Protected by RCD less than or equal to 30mA. See Regulation 512.2","Socket-outlet above a free-standing cooker / individual hob without the potential to connect equipment or appliances - would be hazardous to disconnect when the cooker is in operation. See Regulation 512.2.","Socket-outlet above the bowl of a sink / wash basin with the potential to connect equipment or appliances, which would be hazardous if contact with water in a filled sink or running water.Protected by RCD not exceeding 30mA. See Regulation 512.2.","Socket-outlet above the bowl of a sink / wash basin with the potential to connect equipment or appliances, which could be hazardous if handled or contact was made with wet, unprotected hands / body parts. NO protection by an RCD not exceeding 30mA. See Regulation 512.2.","Socket-outlet above the bowl of a sink / wash basin with the potential to connect equipment or appliances, which could be hazardous if handled or contact was made with wet, unprotected hands / body parts. Protected by an RCD not exceeding 30mA. See Regulation 512.2."]},"6":{"n":"Accessories and wiring","items":["Cables passing thru walls requiring mechanical protection.","Screws missing from DB cover, cover still secure.","Screws missing from DB cover, cover not secure.","Screw missing from socket-outlet, accessory still secure.","Cables which have been left disconnected inside the DB, should be terminated in a suitable accessory or removed to prevent them from being inadvertently energized.","No IP2X protection (greater than 12mm hole) on bottom/side/front surface of accessory.","No IP4X protection (greater than 1mm hole) on top surface of accessory.","Light fitting not fixed securely.","There is no grommet strip protection around the cable entry hole.","Trunking lid is missing.","There are blanks missing in this DB.","No mechanical protection for single insulated cables.","Excessive use of extension leads.","Sockets shall be mounted high enough as to minimise the risk of mechanical damage to the socket outlet or to an associated plug and its flexible cord.","Cable not held in flex grip/gland securely. No damage to cables.","Circuit protective conductors/neutral conductors are not in sequence with their associated phase conductor within the distribution board.","Conductor connections are under strain. (There shall be no undue mechanical strain on the termination of the conductors).","Outer sheath of cable is not inside the enclosure therefore exposed conductors present outside enclosure.","Flexible cable is not held in flex grip/gland securely. Cable damaged.","Each part of a circuit shall be arranged such that conductors are not distributed over multi-core cables. i.e Two T&E cables being used to supply a 3 phase circuit.","Cables not adequately supported.","Wiring systems in escape routes are not supported such that they will not be liable to premature collapse in the event of a fire.","Cables that run across a suspended ceiling should be supported by other means. See Regulation: 522.8.4.","Cable/Conductor not adequately supported throughout it's run. See Regulation: 522.8.5.","Fire barriers are required where the electrical containment system passes through walls. See Regulation: 527.1.2.","The isolator cannot be secured in the off position. See Regulation: 537.2.4","Incorrect IP  protection for accessories located in close proximity to a sink and/or draining board. See Regulation: 512.2.1","Consumer unit /switchgear is not manufactured from non-combustible material  or enclosed in a  cabinet / enclosure constructed of non-combustible material. See Regulation: 421.1.201.","There is no main switch present at the origin in order to isolate the whole installation. See Regulation: 132.15.201.","Diffuser missing from light. See Regulation: 559.3.1","Two separate cables used in 3 phase circuit. See Regulation: 523.6.1.","Unexpected presence of voltage exceeding 230v. Labelling required to accessories. See Regulation: 514.10.1.","No neutral cover, as per manufacturers instructions. See Regulation: 416.2.3.","Loose connection on conductor terminated at MCB. Rectified at time. See Regulation: 526.1.","Debris left in bottom of DB. See Regulation: 522.4.1.","Signs of corrosion within DB. See Regulation: 522.5.","All cables that enter a ferrous DB or enclosure should have all line, neutral and protective conductor's of the relevant circuit collectively surrounded by ferromagnetic material. See Regulation: 521.5.1.","A CPC must be terminated at every accessory. SeeRegulation: 411.3.1.1.","Ring circuit with conductors of the same size shall have resistance values within 0.05 ohm of each other. See Regulation: 643.2.1.","A wiring system shall be selected and erected so that no damage is caused by condensation or ingress of water during installation, use or maintenance. It shall have the relevant IP degree of protection relevant to its location. See Regulation: 522.","Wiring system shall be selected and erected to minimise the damage from mechanical stresses. i.e. impact etc  See Regulation: 522.6.1.","The settings on the MCCB\u2019s in DB could not be determined as design information was not made available. The maximum Zs could not be recorded and further investigation is required in order to ascertain the maximum Zs values. See Regulation: 411.4.4.","Cable supplying the Fire alarm panel is not Fire rated cable. See Regulation: 560.8.1.","Poor adequacy of access to Distribution Board. See Regulation: 132.12.","Downlighters do not have integral fire protection or fire hoods installed. We recommend that at least one of these be in place in order to reduce the risk of spread of fire. See Regulation: 421.1.2 (ii).","There are signs of heat damage to the surrounding building fabric of the downlighter. The downlighter cannot be accessed in order to determine the cause of the heat damage. See Regulation: 421.1.2.","Exposed copper on the phase conductor at the over current protection device. See Regulation : 134.1.1.","Cable in trunking joined with connector block but not enclosed in junction box.","Cable connection/joint in live cables not made within an enclosure, access to live parts.","The steel wire strands of the swa cable have not been secured by the cable gland.","SWA cable entering an enclosure/DB with no gland fitted.","Ring final circuit conductors are open circuit."]},"7":{"n":"General observations","items":["Socket-outlet has been damaged and has exposed live conductive parts. See Regulation 651.2(v).","Light switch has been damaged and has exposed live conductive parts. See Regulation 651.2(v).","Accessory has been damaged and has exposed live conductive parts. See Regulation 651.2(v).","Accessory is showing signs of thermal damage. See Regulation 651.2(v).","PVC connectors have not been enclosed above downlighters. See Regulation 526.5.","Cable connection/joint in live cables not made within an enclosure. Access to live conductive parts. See Regulation 526.5.","Cable has been damaged and has live exposed parts. See Regulation 416.1.","The outer sheath of the cable is damaged exposing inner cores. See Regulation 416.1.","Trunking lid missing exposing single insulated conductors (singles). See Regulation 521.10.1.","Knock out is missing from top of consumer unit, which gives access to live conductive parts. See Regulation 416.1.","Cable is underrated for design current. See Section 523.","Over-current protection has not been provided where a 32A protective device has been installed for a 2.5mm radial circuit. See Regulation 433.1.1; 533.2.","Zs in a final circuit exceeding 32A feeding fixed connected current using equipment is greater than the 80% and less than 100% of manufacturers' or BS 7671 values, but is NOT protected by an RCD. See Regulation 411.3.2.2.","No provision of a circuit protective conductor (cpc) at the Class I light fitting. See Regulation 411.3.1.1.","No earth fly lead to metal back box for cpc where the back box does not have at least one solid lug and/or the accessory mounting fixture screws are NOT connected by design to the cpc and the accessory or faceplate is metallic. See Regulation 411.4.2; 411.5.1.","Extension leads utilised due to insufficient socket-outlets installed. See Regulation 553.1.7.","Socket-outlet mounted too low - signs of damage. See Regulation 553.1.6.","Cables have not been installed within a prescribed zone. See Regulation 522.6.202(i).","No RCD protection for socket-outlets that can be used outdoors. See Regulation 411.3.3.","No RCD protection for PVC/PVC cables in walls. See Regulation 522.6.202.","No mechanical protection for cables within stud walls. See Regulation 522.6.202."]},"8":{"n":"Locations containing a bath or shower","items":["Circuit supplying locations containing a bath / shower- no 30mA RCD protection. See Regulation 701.411.3.3.","Circuit passing through Zone 1 / 2 containing a bath or shower- no 30mA RCD protection. See Regulation 701.411.3.3.","Shaver socket does not have BSEN markings to confirm compliance. See Regulation 701.512.3.","Equipment installed in Zones 0 with less than IPX7 ingress protection. See Regulation 701.512.2.","Equipment installed in Zones 1 & 2 with less than IPX4 ingress protection. See Regulation 701.512.2.","Equipment installed in Zones 0, 1 & 2 exposed to pressure cleaner / hose for cleaning not IPX5 as a minimum. See Regulation 701.512.2.","Switch gear or accessories, not in fixed current using equipment installed in Zone 0. See Regulation 701.512.3.","Supply for SELV circuits located within Zones 0, 1 or 2. See Regulation 701.512.3.","Non SELV switch located within Zone 1. See Regulation 701.512.3.","No supplementary bonding conductors installed in a location containing a bath or shower. See Regulation 701.415.2.","Not all protective conductors of circuits supplying every piece of Class I and Class II equipment are connected to the accessible extraneous-conductive-parts. See Regulation 701.415.2.","Live parts not completely covered with insulation, only removable by destruction. See Regulations 701.414.4.5; 416.1","Appliance incorporating a shaver socket has no BSEN markings to confirm compliance. See Regulation 701.512.3","Shaver socket is manufactured to a non-recognised standard or its equivalent. See Regulation 701.512.3","Appliance incorporating a shaver socket manufactured to a non-recognised standard or its equivalent. See Regulation 701.512.3","Shaver socket complies with BSEN 61558-2, but has damaged case. See Regulation 701.512.3","Shaver socket complies with BSEN 61558-2, is damaged and has exposed live parts. See Regulation 701.512.3","Accessible socket-outlet, within 2.5m of Zone 1. See Regulation 701.512.3","Accessible socket-outlet greater than 2.5m from Zone 1, no RCD protection. See Regulation 701.411.3.3","Shaver supply, not conforming to BSEN 61558-2-5 installed in Zone 2. See Regulation 701.512.3","Equipment not designed or approved by the manufacturer for use in Zone 0. See Regulation 701.55","Current using equipment in Zone 0 is not fixed or permanently connected. See Regulation 701.55","Current using equipment in Zone 0 is not protected by SELV source, located outside Zone 0, 1 or 2. See Regulation 701.55","Equipment not designed by the manufacturer for use in Zone 1. See Regulation 701.55"]},"9":{"n":"Medical locations","items":["All final circuit of Group 1 medical locations rated up to 32A shall be have additional 30mA RCD protection. See Regulation 710.411.4.","Within a Group 2 medical location the measured resistance of the protective conductor between the earth terminal of any socket-outlet (or fixed equipment) and any extraneous - conductive part shall not exceed 0.2\u03a9. See Regulation 710.415.2.2","There is no equipotential bonding busbar installed in or near the Group1 / Group 2 medical location. See Regulation 710.415.2.3.","Lighting circuit installed within Group 1 / Group 2 of a medical location has not been fed from two different sources of supply. See Regulation 710.559.","Light switch /socket has been installed within 200mm of a medical-gas outlet for oxidising /flammable gases. See Regulation 710.512.2.1."]},"10":{"n":"Swimming pools","items":["Supply to specialist equipment in Zone 0 and zone 1 is not protected by SELV. See Regulation 702.410.3.4.1.","Supply to equipment in Zone 0 for use when people are not inside Zone 0 is not protected by electrical separation, SELV or has no protection from an RCD in accordance with Regulation 415.1.1. See Regulation 702.410.3.4.1.","Supply to equipment in Zone 0 for use when people are not inside Zone 0 IS protected by electrical separation or SELV supplied from Zone 2 with NO protection from an RCD in accordance with Regulation 415.1.1. See Regulation 702.410.3.4.1.","Supply to specialist equipment in Zone 2 is NOT protected by electrical separation, SELV or has NO protection from an RCD in accordance with Regulation 415.1.1. See Regulation 702.410.3.4.3.","The SELV supply installed in Zone 2 is NOT protected by an RCD in accordance with Regulation 415.1.1. See Regulations 702.410.3.4.1; 702.410.3.4.3.","Equipment in Zone 0 is less than IPX8. See Regulation 702.512.2.","Equipment in Zone 1 is less than IPX4. See Regulation 702.512.2.","Equipment in Zone 1 is less than IPX5 - cleaning jets in use. See Regulation 702.512.2.","Equipment in Zone 2 is less than IPX2 - indoor locations. See Regulation 702.512.2.","Equipment in Zone 2 is less than IPX4 - outdoor locations. See Regulation 702.512.2.","Equipment in Zone 2 is less than IPX5 - cleaning jets in use. See Regulation 702.512.2.","Socket-outlet installed in Zone 0 / 1. See Regulation 702.53.","Equipment installed in Zone 0 / 1 not specifically designed for that zone. See Regulation 702.55.1.","Underwater luminaire is not fixed. See Regulation 702.55.2."]},"11":{"n":"Rooms containing saunas","items":["Circuit supplying sauna room is NOT protected by RCD in accordance with Regulation 415.1.1. See Regulation 703.411.3.3.","Luminaires installed in sauna room not rated to a minimum of IP44. See Regulation 703.512.2.","Sauna control switches installed in Zone 2 not rated to a minimum of IP44. See Regulations 703.512.2; 703.537.5.","Equipment other than the sauna heater installed in Zone 1. See Regulation 703.512.2.","Equipment within Zone 3 is not rated to a minimum of 125\u00b0C. See Regulation 703.512.2.","Wiring within Zone 3 is not rated to a minimum of 170\u00b0C. See Regulation 703.512.2.","Metallic conduit system accessible in normal use. See Regulation 703.52.","Sauna room light switch installed in sauna room. See Regulation 703.537.5.","Socket-outlet installed in sauna room. See Regulation 703.537.5.","Sauna heater does not comply with BSEN 60335-2. See Regulation 703.55.","Sauna heater installed within manufacturers guidelines showing signs of thermal damage. See Regulations 703.55; 703.512.2; 131.3.2(iii).","Sauna heater not installed within manufacturers guidelines. See Regulation 703.55.","Sauna heater NOT installed within manufacturers guidelines showing signs of thermal damage. See Regulations 703.55; 703.512.2; 131.3.2(iii).","Sauna heater NOT installed within manufacturers guidelines but complies with BS 7671. See Regulation 703.55.","Sauna heater NOT installed within manufacturers guidelines but complies with BS 7671 - showing signs of thermal damage. See Regulations 703.55; 703.512.2; 131.3.2(iii)."]},"12":{"n":"Construction and demolition sites","items":["Socket outlet up to 32A not protected by either reduced low voltage, an RCD in accordance with Regulation 415.1.1, electrical separation of circuits or SELV / PELV See Regulation 704.410.3.10.","PME earthing facility used as a means of earthing without extraneous-conductive-parts being reliably connected to the MET. See Regulation 704.411.3.1.","Socket-outlets exceeding 32A not protected by an RCD not exceeding 500mA. See Regulation 704.411.3.2.1.","Cables run across roads / walkways not utilising special protection against mechanical damage and protection against contact with construction / demolition plant machinery. See Regulation 704.522.8.101.","No means of isolating the supply to construction / demolition site. See Regulation 704.537.2.","Plugs and socket-outlets of 16A and up to 125A not complying with BSEN 60309-2. See Regulation 704.511.1","Plugs and socket-outlets exceeding 125A and up to 800A not complying with BSEN 60309-1. See Regulation 704.511.1"]},"13":{"n":"Agricultural and horticultural","items":["Final socket-outlet circuit less than 32A not protected by an RCD in accordance with Regulation 415.1.1 - (TN-C-S / TN-S systems). See Regulation 705.411.1.","Final socket-outlet circuit less than 32A not protected by an RCD in accordance with Regulation 415.1.1 - (TT systems). See Regulation 705.411.1.","Final socket-outlet circuit less than 32A not protected by an RCD in accordance with Regulation 415.1.1 - supplying hand-held equipment used outdoors. See Regulation 705.411.1.","Final socket-outlet circuit in excess of 32A not protected by an RCD not exceeding 100mA (TN-S / TN-C-S). See Regulation 705.411.1.","All circuits, other than final circuits not protected by an RCD exceeding 300mA. See Regulation 705.411.1.","No supplementary bonding to floor grid in locations intended for livestock. See Regulation 705.415.2.1.","Radiant heaters less than 0.5m from livestock. See Regulation 705.422.6.","Permanently fixed equipment is not IP44 rated as a minimum or placed in IP44 enclosure. See Regulation 705.512.2.","Socket-outlet installed in contact with stored hay / straw / animal feeds / other combustible materials. See Regulation 705.512.2.","Electrical accessory accessible by livestock showing signs of damage. See Regulation 705.513.2.","Electrical accessory accessible by livestock not adequately protected against damage. See Regulation 705.513.2.","Electrical accessory accessible by livestock not designed for use in that area. See Regulation 705.513.2.","Cables suspended over vehicle access route at less than 6m in height. See Regulation 705.522."]},"14":{"n":"Camping/caravan parks","items":["PME supply used to supply caravan pitches. See Regulation 708.411.4.","PME supply used to supply leisure vehicles. See Regulation 708.411.4.","Pitch socket-outlet not protected by a double-pole RCD not exceeding 30mA. See Regulation 708.415.1.","Caravan pitch supply is greater than 20m from the possible connection point of leisure vehicle / caravan or tent when they are in situ. See Regulation 708.55.1.2.","Pitch supply socket-outlets placed at heights less than 0.5m from ground level but there is NO risk of flooding or snow. See Regulation 708.55.1.6.","Pitch supply socket-outlets placed at heights more than 1.5m from ground level - there are NO measures for safe insertion and withdrawal of plugs. See Regulation 708.55.1.6.","Pitch supply socket-outlet current rating below 16A. See Regulation 708.55.1.5.","Pitch supply socket-outlet feeding more than one pitch. See Regulation 708.55.1.4.","Pitch supply socket-outlet not protected by an individual over-current protective device. See Regulation 708.533."]},"15":{"n":"Marinas","items":["Boat electrical system is connected to a PME earthing facility. See Regulation 709.411.4.","Equipment installed is not IPX4 - water splashes likely. See Regulation 709.512.2.1.1.","Equipment installed is not IPX5 - water jets likely (cleaning). See Regulation 709.512.2.1.1.","Equipment installed is not IPX6 - water waves likely. See Regulation 709.512.2.1.1.","Circuit in use on jetty / pontoon / wharf / pier is wired in MICC. See Regulation 709.521.1.5(iv)","Socket-outlet not protected individually by an RCD in accordance with Regulation 415.1.1. See Regulation 709.531.2.","Multiple socket-outlets protected by a single over-current protective device. See Regulation 709.533.","No means of isolating all live conductors, including neutral of the supply to the socket-outlet. See Regulation 709.537.2.1.1.","Socket-outlets in use do not comply with BS EN 60309-1 (over 63A). See Regulation 709.553.1.8.","Socket-outlets in use do not comply with BS EN 60309-2 (up to 63A). See Regulation 709.553.1.8.","Socket-outlet not installed in a separate enclosure. See Regulation 709.553.1.9.","More than 4 socket-outlets contained in one enclosure. See Regulation 709.553.1.10.","Single socket-outlet used to supply multiple pleasure craft / houseboats. See Regulation 709.553.1.11.","Socket-outlet less than 1m above the height of the highest water level. See Regulation 709.553.1.13.","Socket-outlet less than 1m above the height of the highest water level - signs of water / flood damage. See Regulation 709.553.1.13.","Socket-outlet on floating pontoon / walkway less than 300mm above the highest water level. See Regulation 709.553.1.13.","Socket-outlet on floating pontoon / walkway less than 300mm above the highest water level - signs of water ingress. See Regulation 709.553.1.13.","Socket-outlet on floating pontoon / walkway less than 300mm above the highest water level - no additional splash protection. See Regulation 709.553.1.13.","Socket-outlet protective conductors are connected to a PME earthing facility. See Regulation 709.553.1.14.","Socket-outlet on floating pontoon / walkway less than 300mm above the highest water level - with additional appropriate splash protection. See Regulation 709.553.1.13"]},"16":{"n":"Exhibition stands","items":["Temporary electrical installation not protected by an RCD. See Regulation 711.410.3.4.","Temporary electrical installation not protected by an RCD 300mA or less of either time delay or 'S' type design. See Regulation 711.410.3.4.","Socket-outlets not exceeding 32A not protected by an RCD in accordance with Regulation 415.1.1. See Regulation 711.410.3.101.","Final circuits other than socket-outlets not exceeding 32A and not for emergency lighting are not protected by an RCD in accordance with Regulation 415.1.1. See Regulation 711.41.3.101.","PME earthing facility used for an installation outside of a building, not under continuous supervision of a skilled or instructed person(s). See Regulation 711.411.4(i).","Incorrect cable type used. See Regulation 711.521.","Cables improperly jointed but no access to live parts. See Regulation 711.526.1.","Electrical connection in joint box under strain, undue pressure on terminations. See Regulation 711.526.1","No point of isolation for a circuit supplying an outdoor installation or other temporary structure. See Regulation 711.537.2","No readily accessible point of isolation for a circuit supplying an outdoor installation or other temporary structure. See Regulation 711.537.2.","Inadequate floor mounted socket-outlet - unable to withstand mechanical and / or water ingress. See Regulation 711.55.7.","Luminaires below 2.5m from floor level, not adequately fixed to prevent accidental contact, giving rise to risk of injury or ignition of materials. See Regulation 711.559.3.101","No readily accessible and labelled point of isolation for a circuit supplying an outdoor installation or other temporary structure. See Regulation 711.537.2"]},"17":{"n":"Solar PV systems","items":["PV modules not installed in line with manufacturers specifications to allow for heat dissipation under conditions of maximum solar radiation but showing NO signs of thermal damage. See Regulation 712.512.2.1.","PV modules not installed in line with manufacturers specifications to allow for heat dissipation under conditions of maximum solar radiation showing signs of thermal damage. See Regulation 712.512.2.1.","PV panels not fitted to allow safe maintenance as defined by the manufacturer. See Regulation 712.513.1.","PV inverter / converter not fitted to allow safe maintenance as defined by the manufacturer. See Regulation 712.513.1.","The AC output from the PV system is NOT connected to the supply side of the over-current protective device supplying current-using equipment. See Regulation 712.551.7.2","The AC output from the PV system is NOT protected by a type B RCD, it is not known if the PV inverter is capable of DC feedback. See Regulation 712.531.3.5.1","The AC output from the PV system is NOT protected by a type B RCD, where the PV inverter is capable of DC feedback into the installation. See Regulation 712.531.3.5.1.","No adequate method for isolating the PV inverter from the AC side. See Regulation 712.537.2.101","No adequate method for isolating the PV inverter/converter from the DC side. See Regulation 712.537.2.2.101","Switch-disconnector on the AC side of the PV inverter/converter is damaged and non-functional. See Regulations 642.2.2(iii); 712.537.2.101","Switch-disconnector on the AC side of the PV inverter is excessively damaged but functional. See Regulations 642.2.2(iii); 712.537.2.101","Switch-disconnector on the AC side of the PV inverter is damaged but functional and has no IP infringements. See Regulations 642.2.2(iii); 712.537.2.101","No labels identifying live parts inside the PV generator and array junction boxes after isolation of the PV converter. See Regulations 712.514.102; 712.514.103","The AC output from the inverter, is connected to the load side of the RCBO, where directional load markings are used. (Arrows or Line and Load markings). See Regulation 712.551.7.2","The AC output from the inverter, is connected to the load side of an RCCB / RCD via an MCB, where directional load markings are used on the RCCB / RCD (arrows or Line and Load markings). See Regulation 712.551.7.2","Electrical equipment, PV modules, or wiring system used on the DC side is not Class II or equivalent. See Regulation 712.412.101","Blocking diode used as protective device where PV strings are connected in parallel. See Regulation 712.432.102","Inverter does not comply with a relevant equipment standard. See Regulation 712.511.102","An RCD providing additional protection, for solar PV supply cable is not double pole, or does not disconnect all live conductors, including the neutral (poly-phase). See Regulation 551.7.1(ii)","No provision for a switch-disconnector onthe DC side of the PV inverter. See Regulation 712.537.2.2.101","Switch-disconnector on the DC side of the PV inverter is damaged and non-functional. See Regulations 642.2.2(iii); 712.537.2.2.101","Switch-diconnector on the DC side of the PV inverter is excessively damaged but functional. See Regulations 642.2.2(iii); 712.537.2.2.101","Switch-disconnector on the DC side of the PV inverter is damaged, but functional, and has no IP infringements. See Regulations 642.2.2(iii); 712.537.2.2.101","Functional bonding conductors are less than 4mm2 copper, or its equivalent. See Regulation 712.542.3.101"]},"18":{"n":"Outdoor lighting installations","items":["Live parts of equipment accessible without the use of a key or tool in a location where non-skilled or instructed persons have access. See Regulation 714.411.2.201.","Access door less than 2.5m above ground level and does not have IPXXB or IP2X by construction or installation when the door is open. See Regulation 714.411.2.201.","Lighting accessible to the public (pub gardens, bus shelters, spaces open to the public etc) has not been supplied by a circuit with RCD protection in accordance with 415.1.1. See Regulations 714.411.3.4; 415.1.1"]},"19":{"n":"Mobile/transportable units","items":["Wiring systems include the use of non-flexible cable. See Regulation 717.52.2.","Wiring systems cables do not meet the requirements of BSEN 60332-1-2. See Regulation 717.52.2.","Protective equipotential bonding not in place. See Regulation 717.411.3.1.2.","Cables installed without proper attention to mechanical damage and abrasion, showing NO signs of damage. See Regulation 717.52.2.","Cables installed without proper attention to mechanical damage and abrasion, showing signs of damage. See Regulation 717.52.2.","Electrical equipment / wiring system installed in gas cylinder storage compartment. See Regulation 717.528.3.4.","Wiring system passing through gas storage compartment not sufficiently protected against mechanical damage. See Regulation 717.528.3.4.","Conductors used for bonding are not finely stranded, and are susceptible to damage from flexing, while in transit and relocation. See Regulation 717.411.3.1.2"]},"20":{"n":"Installations in caravans/motor caravans","items":["Structural metallic parts of the caravan / motor caravan are not connected to the main earthing terminal within the caravan. See Regulation 721.411.3.1.2.","Final circuit over-current protective devices are single-pole and do not disconnect all live conductors of the circuit. See Regulation 721.43.1.","Instructions for safe use of caravan electrical installation not provided. See Regulation 721.514.1.","Wiring systems contain non-flexible cables. See Regulation 721.521.2.","Wiring system contains metallic conduit, incorporating single insulated cables. See Regulation 721.521.2.","Cables installed without proper attention to mechanical damage and abrasion, showing NO signs of damage. See Regulation 721.522.7.1.","Cables installed without proper attention to mechanical damage and abrasion, showing signs of damage. See Regulation 721.522.7.1.","Electrical equipment / wiring system installed in gas cylinder storage compartment. See Regulation 721.528.2.1.","Wiring system passing through gas storage compartment, not sufficiently protected against mechanical damage. See Regulation 721.528.2.1.","Circuit protective conductor separate from its final circuit. See Regulation 721.543.2.1.","Accessory exposed to moisture not rated to a minimum of IP44. See Regulation 721.55.2.3.","Caravan pitch connection cable plug does not comply with BS EN 60309-2. See Regulation 721.55.2.6.","Caravan pitch connection cable does not comply with H05RN-f, or equivalent. See Regulation 721.55.2.6.","Caravan pitch connection cable does not comply with H05RN-f, or equivalent - showing signs of mechanical / thermal damage. See Regulation 721.55.2.6.","Caravan pitch connection cable is less than 25m (\u00b12m) in length. See Regulation 721.55.2.6."]},"21":{"n":"Vehicle charging installations","items":["EV charging point installed outdoors - not IP44 rated as a minimum. See Regulation 722.512.2.202.","EV charging point not individually protected by an over-current protective device. See Regulation 722.533.101.","BS 1363 socket-outlet installed for EV charging and NOT marked \"EV\" on the rear, showing NO signs of thermal damage. See Regulation 722.55.101.0.201.1.","BS 1363 socket-outlet installed for EV charging and NOT marked \"EV\" on the rear, showing signs of thermal damage. See Regulation 722.55.101.0.201.1.","EV charging point not supplied from a dedicated final circuit. See Regulation 722.533.101","An electrical separation transformer has been used to supply more than one electric vehicle. See Regulation 722.413.1.2","EV charging point supply protected by AC type RCD. See Regulation 722.531.3.101.","EV charging point supply protected only by a type A RCD - with DC residual current exceeding 6mA. See Regulation 722.531.3.101.","EV charging point supplied by a single pole RCD. See Regulation 722.531.3.1"]},"22":{"n":"Operating and maintenance gangways","items":["Gangway longer than 10m, not accessible from both ends. See Regulation 729.513.2.3.","Closed restricted access area longer than 20m, does not have an accessible door at either end. See Regulation 729.513.2.3."]},"23":{"n":"Onshore units for inland navigable vessels","items":["Isolating transformer protective conductor has been connected to vessel supply socket earth terminal. See Regulation 730.313.1.102.","PME system used to supply an inland navigation vessel. See Regulation 730.411.4.","Shore supply equipment not IP44 rated. See Regulation 730.512.2.101.","Shore supply equipment not IP44 rated showing signs of water and / or solid material ingress. See Regulation 730.512.2.101.","Inappropriate cable management system used, limited mechanical protection. See Regulation 730.521.101.3.1.","Inappropriate cable management system used, mechanical damage evident. See Regulation 730.521.101.3.1.","Socket-outlet(s) protected by single-pole RCD. See Regulation 730.531.3.","Socket-outlet(s) not exceeding 63A, protected by an RCD with a residual operating current exceeding 30mA. See Regulation 730.531.3.","Socket-outlet(s) exceeding 63A, protected by an RCD with a residual operating current exceeding 300mA. See Regulation 730.531.3.","Socket-outlet not protected by individual over-current protective device. See Regulation 730.533.","Socket-outlet used to supply more than one vessel. See Regulation 730.55.1.4.","Socket-outlet(s) placed less than 1m above the highest water level (not a floating pontoon or walkway), showing NO signs of water ingress or damage. See Regulation 730.553.13.","Socket-outlet(s) placed less than 1m above the highest water level (not a floating pontoon or walkway), showing signs of water ingress or damage. See Regulation 730.553.13.","Socket-outlet(s) on floating pontoon / walkway less than 300mm above the highest water level showing signs of water ingress. See Regulation 730.553.13.","Socket-outlet(s) on floating pontoon / walkway less than 300mm above the highest water level with NO additional splash protection. See Regulation 730.553.13.","Socket-outlet(s) placed below 1m above the highest water level (not a floating pontoon or walkway), showing signs of flood / water damage. See Regulation 730.553.13."]},"24":{"n":"Amusement parks, fairgrounds","items":["Temporary electrical installation not protected by an RCD. See Regulation 740.410.3.","Temporary electrical installation not protected by an RCD 300mA or less, of either time delay or 'S-type' design. See Regulation 740.410.3.","PME earthing facility used as the means of earthing. See Regulation 740.411.4.1.","NO RCD protection \u2264 30mA for final circuit socket-outlets up to 32A. See Regulation 740.415.1 (ii).","NO RCD protection \u2264 30mA for lighting final circuits. See Regulation 740.415.1 (i).","NO RCD protection \u2264 30mA for final circuit supplying mobile equipment with a flexible cable up to 32A. See Regulation 740.415.1 (iii).","Electrical connection in joint box under strain with undue pressure on terminations. See Regulation 740.526.","Electrical connection in joint box under strain with undue pressure on terminations and showing signs of terminal damage. See Regulation 740.526.","Booth / stand / device does not have its own individual means of isolation. See Regulation 740.537.2.1.1.","Isolation switch does not disconnect all live conductors including neutral conductors. See Regulation 740.537.2.2.","Supply cable to transportable floodlight(s) have solid conductors (not flexible conductors). See Regulation 740.55.1.4."]},"25":{"n":"Floor and ceiling heating systems","items":["Underfloor heating system not protected by an RCD rated at less than or equal to  30mA. See Regulation 753.411.3.2.","No conductive covering for underfloor heating elements without exposed-conductive-parts and not complying with 753.412.1.201. See Regulations 753.411.3.2; 753.412.1.201.","Conductive covering not connected to the installation MET for underfloor heating elements without exposed-conductive-parts. See Regulation 753.411.3.2.","Double or reinforced insulation used as the sole means of protection. See Regulations 753.412.1.201; 753.411.3.2.","Surface floor temperature exceeds 35\u00b0C. See Regulations 753.423; 554.4.4.","Cold tails of heating elements / unit not extended / repaired adequately with an inseparable connection. See Regulation 753.424.102.","Detailed documentation of the installed heating system not fixed or adjacent to the distribution board of or supplying the heating system. See Regulation 753.514.1.","Heating element crosses structural expansion joint - risk of mechanical damage. See Regulation 753.515.101.","Heating element exposed and not completely covered by surface covering. See Regulation 753.554.4.3.","Heating element NOT exposed and the surface covering is intact but damaged. See Regulation 753.554.4.3.","Heating element installed is not designed for the location. See Regulation 753.554.4.202"]}};
+
+let circuits=[],tests=[],observations=[],boardImage=null;
+let selectedRows=new Set();
+
+// Bonding & Incoming checks
+let checks={
+  waterBond:{status:'',photo:null,note:''},
+  gasBond:{status:'',photo:null,note:''},
+  oilBond:{status:'',photo:null,note:''},
+  mainsIncoming:{status:'',photo:null,note:''},
+  meterTails:{status:'',photo:null,note:''},
+  consumerUnit:{status:'',photo:null,note:''},
+  earthingArrangement:{status:'',photo:null,note:''}
+};
+
+function initData(){
+  circuits=Array.from({length:8},(_,i)=>({cct:''+(i+1),desc:'',ref:'',pts:'',live:'',cpc:'',disc:'0.4',dev:'B',rating:'',bsEn:'',idn:'',rcdTime:''}));
+  tests=Array.from({length:8},(_,i)=>({cct:''+(i+1),desc:'',r1:'',rn:'',r2:'',irLN:'',irLE:'',irNE:'',r1r2:'',zs:'',rcd:'',rcdButton:false}));
+  observations=Array.from({length:4},()=>({obs:'',code:'',reg:'',location:'',image:null}));
+  checks={waterBond:{status:'',photo:null,note:''},gasBond:{status:'',photo:null,note:''},oilBond:{status:'',photo:null,note:''},mainsIncoming:{status:'',photo:null,note:''},meterTails:{status:'',photo:null,note:''},consumerUnit:{status:'',photo:null,note:''},earthingArrangement:{status:'',photo:null,note:''}};
+  boardImage=null;
+}
+
+// ===== SAVE / LOAD =====
+function getFullState(){
+  const state={fields:{},circuits,tests,observations,checks,boardImage,ts:Date.now()};
+  document.querySelectorAll('[data-field]').forEach(el=>state.fields[el.dataset.field]=el.value);
+  return state;
+}
+function applyState(state){
+  if(state.circuits?.length)circuits=state.circuits;
+  if(state.tests?.length)tests=state.tests;
+  if(state.observations?.length)observations=state.observations;
+  if(state.checks)checks=state.checks;
+  if(state.boardImage)boardImage=state.boardImage;
+  // Render everything first so fields exist
+  renderDetails();renderSupply();renderScan();renderCircuits();renderTests();renderBonding();renderObs();
+  // Then set field values
+  if(state.fields)Object.entries(state.fields).forEach(([k,v])=>{const el=document.querySelector(`[data-field="${k}"]`);if(el)el.value=v});
+}
+function autoSave(){
+  try{localStorage.setItem('eicr_autosave',JSON.stringify(getFullState()))}catch(e){toast('⚠ Storage full — reduce photos or save/export')}
+}
+let saveTimer;
+function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,800)}
+
+function showSave(){
+  const name=gv('clientName')||gv('clientAddress')||'';
+  document.getElementById('saveName').value=name;
+  document.getElementById('saveModal').classList.add('show');
+}
+function doSave(){
+  const name=document.getElementById('saveName').value.trim();
+  if(!name){toast('Enter a name');return}
+  const saves=JSON.parse(localStorage.getItem('eicr_saves')||'{}');
+  const key='cert_'+Date.now();
+  saves[key]={name,date:new Date().toLocaleDateString('en-GB'),data:getFullState()};
+  try{
+    localStorage.setItem('eicr_saves',JSON.stringify(saves));
+    document.getElementById('saveModal').classList.remove('show');
+    toast('✓ Saved: '+name);
+  }catch(e){
+    toast('⚠ Storage full — delete old certs');
+  }
+}
+function showLoad(){
+  const saves=JSON.parse(localStorage.getItem('eicr_saves')||'{}');
+  const list=document.getElementById('saveList');
+  const entries=Object.entries(saves).sort((a,b)=>b[1].data.ts-a[1].data.ts);
+  if(!entries.length){list.innerHTML='<div style="text-align:center;padding:20px;color:#888;font-size:11px">No saved certificates yet</div>';
+  }else{
+    list.innerHTML=entries.map(([k,s])=>`<div class="save-item">
+      <div class="si-info"><div class="si-name">${s.name}</div><div class="si-date">${s.date}</div></div>
+      <div class="si-btns">
+        <button class="si-btn load" onclick="loadCert('${k}')">Load</button>
+        <button class="si-btn del" onclick="delCert('${k}')">🗑</button>
+      </div>
+    </div>`).join('');
+  }
+  document.getElementById('loadModal').classList.add('show');
+}
+function loadCert(key){
+  const saves=JSON.parse(localStorage.getItem('eicr_saves')||'{}');
+  if(!saves[key])return;
+  applyState(saves[key].data);
+  document.getElementById('loadModal').classList.remove('show');
+  toast('✓ Loaded: '+saves[key].name);
+}
+function delCert(key){
+  if(!confirm('Delete this certificate?'))return;
+  const saves=JSON.parse(localStorage.getItem('eicr_saves')||'{}');
+  delete saves[key];
+  localStorage.setItem('eicr_saves',JSON.stringify(saves));
+  showLoad();
+  toast('Deleted');
+}
+function newCert(){
+  if(!confirm('Start new blank certificate? Unsaved changes will be lost.'))return;
+  initData();
+  renderDetails();renderSupply();renderScan();renderCircuits();renderTests();renderBonding();renderObs();
+  sv('inspectorName',localStorage.getItem('eicr_inspector')||'');
+  sv('inspectorQual',localStorage.getItem('eicr_quals')||'');
+  sv('inspectorReg',localStorage.getItem('eicr_reg')||'');
+  document.getElementById('loadModal').classList.remove('show');
+  toast('New certificate started');
+}
+
+// ===== HELPERS =====
+function gv(id){return document.querySelector(`[data-field="${id}"]`)?.value||''}
+function sv(id,v){const el=document.querySelector(`[data-field="${id}"]`);if(el)el.value=v}
+function getZsStatus(i){
+  const c=circuits[i],t=tests[i];
+  if(!c||!t||!c.dev||!c.rating||!t.zs)return null;
+  const max=getZsMax(c.dev,c.rating);if(!max)return null;
+  const m=parseFloat(t.zs);if(isNaN(m))return null;
+  return{pass:m<=max*.8,warn:m<=max,max,measured:m};
+}
+
+// ===== TABS =====
+const TABS=[
+  {id:'details',label:'📋 Details'},
+  {id:'supply',label:'⚡ Supply'},
+  {id:'scan',label:'📸 Scan',cls:'scan'},
+  {id:'circuits',label:'🔌 Circuits'},
+  {id:'results',label:'🧪 Results'},
+  {id:'bonding',label:'🔗 Bonding'},
+  {id:'observations',label:'⚠️ Obs'},
+  {id:'summary',label:'📊 Summary'}
+];
+function initTabs(){
+  const el=document.getElementById('tabs');
+  el.innerHTML=TABS.map((t,i)=>`<button class="tab${t.cls?' '+t.cls:''}${i===0?' active':''}" data-tab="${t.id}">${t.label}</button>`).join('');
+  el.addEventListener('click',e=>{
+    const btn=e.target.closest('.tab');if(!btn)return;
+    el.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('p-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='summary')updateSummary();
+    if(btn.dataset.tab==='results')renderTests();
+    if(btn.dataset.tab==='circuits')renderCircuits();
+    if(btn.dataset.tab==='observations')renderObs();
+    if(btn.dataset.tab==='bonding')renderBonding();
+  });
+}
+
+// ===== FIELD HELPER =====
+function field(id,label,type,opts){
+  if(type==='select')return`<div class="f${opts?.cls?' '+opts.cls:''}"><label>${label}</label><select data-field="${id}" onchange="queueSave()">${(opts?.options||[]).map(o=>`<option>${o}</option>`).join('')}</select></div>`;
+  return`<div class="f${opts?.cls?' '+opts.cls:''}"><label>${label}</label><input data-field="${id}" ${type==='date'?'type="date"':''} placeholder="${opts?.ph||''}" oninput="queueSave()"></div>`;
+}
+
+// ===== RENDER PANELS =====
+function renderDetails(){
+  document.getElementById('p-details').innerHTML=`
+    <div class="stitle">Client Details</div>
+    <div class="fr">${field('clientName','Client Name','text',{ph:'Full name',cls:'h'})}${field('clientTel','Telephone','text',{ph:'07...',cls:'h'})}</div>
+    <div class="fr">${field('clientAddress','Address','text',{ph:'Full address',cls:'h'})}${field('clientEmail','Email','text',{ph:'email@...',cls:'h'})}</div>
+    <div class="stitle" style="margin-top:10px">Installation</div>
+    <div class="fr">${field('installAddress','Installation Address','text',{ph:'If different',cls:'h'})}${field('installPostcode','Postcode','text',{ph:'WV14...',cls:'h'})}</div>
+    <div class="fr">${field('installDesc','Description','text',{ph:'Domestic dwelling',cls:'h'})}${field('installAge','Est. Age','text',{ph:'20 years',cls:'h'})}</div>
+    <div class="stitle" style="margin-top:10px">Distribution Board</div>
+    <div class="fr">${field('dbRef','DB Ref','text',{ph:'1.69',cls:'t'})}${field('dbLocation','Location','text',{ph:'Under stairs',cls:'t'})}${field('dbDesignation','Designation','text',{ph:'Main board',cls:'t'})}</div>
+    <div class="stitle" style="margin-top:10px">Inspector</div>
+    <div class="fr">${field('inspectorName','Name','text',{ph:'Full name',cls:'h'})}${field('inspectorQual','Qualifications','text',{ph:'C&G 2391',cls:'h'})}</div>
+    <div class="fr">${field('inspectorReg','Reg No.','text',{ph:'NAPIT/NICEIC',cls:'h'})}${field('inspectorDate','Date','date',{cls:'h'})}</div>`;
+}
+function renderSupply(){
+  document.getElementById('p-supply').innerHTML=`
+    <div class="stitle">Earthing &amp; Supply Characteristics</div>
+    <div class="fr">${field('earthing','System Type','select',{cls:'t',options:['TN-S','TN-C-S','TT','IT']})}${field('ze','Ze (Ω)','text',{ph:'0.14',cls:'t'})}${field('pfc','PFC (kA)','text',{ph:'1.64',cls:'t'})}</div>
+    <div class="fr">${field('supplyDevice','Supply Device','text',{ph:'BS 1361',cls:'t'})}${field('supplyRating','Rating (A)','text',{ph:'100',cls:'t'})}${field('mainBonding','Bonding (mm²)','text',{ph:'10.0',cls:'t'})}</div>
+    <div class="fr">${field('mainEarthCSA','Earth CSA (mm²)','text',{ph:'16.0',cls:'t'})}${field('earthElectrodeType','Electrode Type','text',{ph:'N/A',cls:'t'})}${field('earthElectrodeRa','Electrode Ra (Ω)','text',{ph:'N/A',cls:'t'})}</div>
+    <div class="info"><strong>Typical Ze:</strong> TN-S: 0.08–0.35Ω | TN-C-S: 0.08–0.35Ω | TT: 0.2–21Ω<br><strong>Max Zs (0.4s):</strong> B6=7.28 | B10=4.37 | B16=2.73 | B32=1.37 | B40=1.09 | B50=0.87</div>`;
+}
+function renderScan(){
+  document.getElementById('p-scan').innerHTML=`
+    <div class="stitle">📸 Scan Consumer Unit</div>
+    <p style="font-size:10px;color:#555;line-height:1.6;margin-bottom:12px">Upload a photo of the distribution board. Claude AI will read MCBs/RCDs and auto-populate your circuit schedule.</p>
+    <div class="upload-zone"><input type="file" accept="image/*" onchange="handleBoardFile(this)">
+      <div id="boardPreview">${boardImage?`<img src="${boardImage}"><br><span style="font-size:9px;color:#888;margin-top:4px;display:block">Tap to change photo</span>`:`<div class="icon">📷</div><div class="ulabel">Tap to take photo or upload</div><div class="hint">Clear photo of open consumer unit</div><div class="cta">Choose Photo</div>`}</div>
+    </div>
+    <div id="scanStatus"></div>
+    <div class="tip"><strong>Tips:</strong> Open board cover • Include circuit chart • Good lighting • Always verify AI results</div>`;
+}
+
+function renderCircuits(){
+  const refs=['','A','B','C','100'],devs=['B','C','D','—'],rates=['','5','6','10','16','20','25','32','40','45','50','63'];
+  let rows='';
+  circuits.forEach((c,i)=>{
+    const maxZs=getZsMax(c.dev,c.rating);const maxZsStr=maxZs?maxZs+'Ω':'';
+    const isSel=selectedRows.has(i);
+    rows+=`<tr class="${isSel?'sel':''}"><td style="width:20px;text-align:center"><input type="checkbox" ${isSel?'checked':''} onclick="toggleRow(${i},this.checked)" style="width:16px;height:16px;accent-color:var(--am)"></td><td><input value="${c.cct}" oninput="circuits[${i}].cct=this.value;tests[${i}].cct=this.value;queueSave()" style="font-weight:700"></td><td><input value="${c.desc}" oninput="circuits[${i}].desc=this.value;tests[${i}].desc=this.value;queueSave()" placeholder="Description" style="text-align:left"></td><td><select onchange="circuits[${i}].ref=this.value;queueSave()">${refs.map(r=>`<option${r===c.ref?' selected':''}>${r||'—'}</option>`).join('')}</select></td><td><input value="${c.pts}" oninput="circuits[${i}].pts=this.value;queueSave()"></td><td><input value="${c.live}" oninput="circuits[${i}].live=this.value;queueSave()"></td><td><input value="${c.cpc}" oninput="circuits[${i}].cpc=this.value;queueSave()"></td><td><input value="${c.disc}" oninput="circuits[${i}].disc=this.value;queueSave()"></td><td><select onchange="circuits[${i}].dev=this.value;queueSave();renderCircuits()">${devs.map(d=>`<option${d===c.dev?' selected':''}>${d}</option>`).join('')}</select></td><td><select onchange="circuits[${i}].rating=this.value;queueSave();renderCircuits()">${rates.map(r=>`<option${r===c.rating?' selected':''}>${r||'—'}</option>`).join('')}</select></td><td><input value="${c.bsEn||''}" oninput="circuits[${i}].bsEn=this.value;queueSave()" placeholder="60898" style="font-size:8px"></td><td><input value="${c.idn}" oninput="circuits[${i}].idn=this.value;queueSave()"></td><td><input value="${c.rcdTime}" oninput="circuits[${i}].rcdTime=this.value;queueSave()"></td><td style="font-size:7px;color:#1976d2;font-weight:600;font-family:'IBM Plex Mono';white-space:nowrap">${maxZsStr}</td><td style="width:24px"><button onclick="delRow(${i})" style="background:none;border:none;color:#d32f2f;font-size:14px;cursor:pointer;padding:2px">✕</button></td></tr>`;
+  });
+  // Selection bar
+  let selBar='';
+  if(selectedRows.size>0){selBar=`<div class="sel-bar"><span>${selectedRows.size} row(s) selected</span><button class="del" onclick="deleteSelected()">🗑 Delete Selected</button><button class="clr" onclick="clearSelection()">Clear</button></div>`}
+  // BS standard selector
+  const bsStds=['BS 60898','BS EN 61009','BS 88','BS 3871 Type 2'];
+  const bsSel=`<div class="bs-sel">${bsStds.map(s=>`<button class="${s===selectedBsStd?'on':''}" onclick="setBsStd('${s}')">${s}</button>`).join('')}</div>`;
+  // Quick-add buttons
+  const qaHtml=`<div class="qa-grid">${Object.keys(PRESETS).map(k=>`<button class="qa-btn" onclick="quickAdd('${k}')">⚡ ${k}</button>`).join('')}</div>`;
+
+  document.getElementById('p-circuits').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div class="stitle">Circuit Schedule</div>
+      <button class="add-btn" onclick="addCircuit()">+ Blank Row</button>
+    </div>
+    <div style="font-size:9px;font-weight:600;color:#555;margin-bottom:3px">⚡ QUICK ADD CIRCUIT:</div>
+    ${qaHtml}
+    <div style="font-size:9px;font-weight:600;color:#555;margin-bottom:3px">PROTECTIVE DEVICE STANDARD:</div>
+    ${bsSel}
+    ${selBar}
+    <div class="tw"><table><thead><tr>
+      <th style="width:20px">✓</th>
+      <th style="width:30px">Cct</th>
+      <th style="width:120px">Description</th>
+      <th>Ref</th><th>Pts</th>
+      <th>Live<br>mm²</th><th>CPC<br>mm²</th>
+      <th>Disc</th><th>Dev</th><th>Rate</th>
+      <th>BS EN</th><th>IΔn</th><th>RCD</th>
+      <th style="width:42px">Max<br>Zs</th>
+      <th style="width:24px"></th>
+    </tr></thead><tbody>${rows}</tbody></table></div>
+    <div style="margin-top:3px;font-size:7px;color:#999">
+      Standard: <strong>${selectedBsStd}</strong> | Ref: A=Conduit | B=On wall | C=Clipped | 100=Trunking | Max Zs from Table 41.2/41.3
+    </div>`;
+}
+function toggleRow(i,checked){
+  if(checked)selectedRows.add(i);else selectedRows.delete(i);
+  // Update UI without full re-render to keep checkbox state
+  const rows=document.querySelectorAll('#p-circuits tbody tr');
+  if(rows[i])rows[i].classList.toggle('sel',checked);
+  // Update selection bar
+  const panel=document.getElementById('p-circuits');
+  const existing=panel.querySelector('.sel-bar');
+  if(selectedRows.size>0){
+    const barHtml=`<div class="sel-bar"><span>${selectedRows.size} row(s) selected</span><button class="del" onclick="deleteSelected()">🗑 Delete Selected</button><button class="clr" onclick="clearSelection()">Clear</button></div>`;
+    if(existing)existing.outerHTML=barHtml;
+    else{const tw=panel.querySelector('.tw');tw.insertAdjacentHTML('beforebegin',barHtml)}
+  }else if(existing)existing.remove();
+}
+function clearSelection(){selectedRows.clear();renderCircuits()}
+function deleteSelected(){
+  if(!selectedRows.size)return;
+  const count=selectedRows.size;
+  const idxs=[...selectedRows].sort((a,b)=>b-a);
+  idxs.forEach(i=>{circuits.splice(i,1);tests.splice(i,1)});
+  circuits.forEach((c,i)=>{c.cct=''+(i+1);if(tests[i])tests[i].cct=''+(i+1)});
+  selectedRows.clear();renderCircuits();queueSave();toast('Deleted '+count+' rows');
+}
+function delRow(i){
+  circuits.splice(i,1);tests.splice(i,1);
+  circuits.forEach((c,j)=>{c.cct=''+(j+1);if(tests[j])tests[j].cct=''+(j+1)});
+  selectedRows.clear();renderCircuits();queueSave();toast('Row deleted');
+}
+function setBsStd(std){selectedBsStd=std;localStorage.setItem('eicr_bs_std',std);renderCircuits();renderTests();toast('Standard: '+std)}
+function quickAdd(presetName){
+  const p=PRESETS[presetName];if(!p)return;
+  const n=''+(circuits.length+1);
+  circuits.push({cct:n,desc:p.desc,ref:p.ref||'',pts:p.pts||'',live:p.live||'',cpc:p.cpc||'',disc:p.disc||'0.4',dev:p.dev||'B',rating:p.rating||'',bsEn:p.bsEn||'',idn:p.idn||'',rcdTime:''});
+  tests.push({cct:n,desc:p.desc,irLN:'',irLE:'',irNE:'',r1r2:'',zs:'',rcd:''});
+  renderCircuits();queueSave();toast('Added: '+presetName);
+}
+function addCircuit(){const n=''+(circuits.length+1);circuits.push({cct:n,desc:'',ref:'',pts:'',live:'',cpc:'',disc:'0.4',dev:'B',rating:'',bsEn:'',idn:'',rcdTime:''});tests.push({cct:n,desc:'',r1:'',rn:'',r2:'',irLN:'',irLE:'',irNE:'',r1r2:'',zs:'',rcd:'',rcdButton:false});renderCircuits();queueSave()}
+
+function renderTests(){
+  const ze=parseFloat(gv('ze'))||0;
+  let rows='';
+  tests.forEach((t,i)=>{
+    const zs=getZsStatus(i);let st='<td>—</td>';
+    if(zs){const cls=zs.pass?'zp':zs.warn?'zw':'zf';const txt=zs.pass?'✓':zs.warn?'⚠':'✗';st=`<td class="${cls}">${txt}<br><span style="font-size:6px;color:#888">${zs.max}Ω</span></td>`}
+    // Show calculated values
+    let r1r2Display=t.r1r2,zsDisplay=t.zs;
+    let r1r2Hint='',zsHint='';
+    if(ze>0){
+      if(t.zs&&!t.r1r2){const calc=(parseFloat(t.zs)-ze);if(!isNaN(calc)&&calc>=0){r1r2Display=calc.toFixed(2);r1r2Hint='calc'}}
+      if(t.r1r2&&!t.zs){const calc=(parseFloat(t.r1r2)+ze);if(!isNaN(calc)){zsDisplay=calc.toFixed(2);zsHint='calc'}}
+    }
+    rows+=`<tr><td style="font-weight:700;font-family:'IBM Plex Mono'">${t.cct}</td><td style="text-align:left;padding:2px 5px;font-size:9px">${t.desc||circuits[i]?.desc||''}</td><td><input value="${t.r1||''}" oninput="tests[${i}].r1=this.value;queueSave()" placeholder="Ω"></td><td><input value="${t.rn||''}" oninput="tests[${i}].rn=this.value;queueSave()" placeholder="Ω"></td><td><input value="${t.r2||''}" oninput="tests[${i}].r2=this.value;queueSave()" placeholder="Ω"></td><td><input value="${t.irLN}" oninput="tests[${i}].irLN=this.value;queueSave()" placeholder=">999"></td><td><input value="${t.irLE}" oninput="tests[${i}].irLE=this.value;queueSave()" placeholder=">999"></td><td><input value="${t.irNE}" oninput="tests[${i}].irNE=this.value;queueSave()" placeholder=">999"></td><td style="position:relative"><input value="${t.r1r2}" oninput="tests[${i}].r1r2=this.value;queueSave();calcTestRow(${i},'r1r2')" placeholder="${r1r2Hint==='calc'?r1r2Display:'N/A'}" style="${r1r2Hint?'color:#1976d2':''}"></td><td style="position:relative"><input value="${t.zs}" oninput="tests[${i}].zs=this.value;queueSave();calcTestRow(${i},'zs')" placeholder="${zsHint==='calc'?zsDisplay:'0.00'}" style="${zsHint?'color:#1976d2':''}"></td><td><input value="${t.rcd}" oninput="tests[${i}].rcd=this.value;queueSave()" placeholder="ms"></td><td style="text-align:center"><input type="checkbox" ${t.rcdButton?'checked':''} onchange="tests[${i}].rcdButton=this.checked;queueSave()" style="width:16px;height:16px;accent-color:#2e7d32;cursor:pointer"></td>${st}</tr>`;
+  });
+  const calcBtns=ze>0?`<div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap"><button class="hbtn pdf" onclick="calcAllR1R2()" style="font-size:9px;padding:6px 10px">⚡ Calc All R1+R2 from Zs</button><button class="hbtn ld" onclick="calcAllZs()" style="font-size:9px;padding:6px 10px">⚡ Calc All Zs from R1+R2</button></div>`:'';
+  document.getElementById('p-results').innerHTML=`<div class="stitle">Test Results</div>${ze>0?'<div class="ss ok" style="margin-bottom:6px">🔄 Auto-calc active — Ze = '+ze+'Ω. Enter Zs → get R1+R2, or enter R1+R2 → get Zs</div>':'<div class="ss err" style="margin-bottom:6px">⚡ Set Ze on Supply tab to enable auto-calculation</div>'}${calcBtns}<div class="tw"><table><thead><tr><th style="width:28px">Cct</th><th style="width:100px">Desc</th><th>R1<br>Ω</th><th>Rn<br>Ω</th><th>R2<br>Ω</th><th>IR<br>L-N</th><th>IR<br>L-E</th><th>IR<br>N-E</th><th>R1+R2<br>Ω</th><th>Zs<br>Ω</th><th>RCD<br>ms</th><th>RCD<br>Btn</th><th style="width:36px">St</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:3px;font-size:7px;color:#999">R1/Rn/R2 = ring continuity | IR ≥1.0MΩ | Zs = Ze + (R1+R2) | RCD Btn = test button checked ✓ | Blue = auto-calculated</div>`;
+}
+function calcTestRow(i,source){
+  const ze=parseFloat(gv('ze'))||0;if(!ze)return;
+  const row=document.querySelectorAll('#p-results tbody tr')[i];if(!row)return;
+  const inputs=row.querySelectorAll('input');
+  // inputs order: r1,rn,r2,irLN,irLE,irNE,r1r2,zs,rcd,rcdButton
+  const r1r2Input=inputs[6],zsInput=inputs[7];
+  if(source==='zs'&&tests[i].zs){
+    const calc=(parseFloat(tests[i].zs)-ze);
+    if(!isNaN(calc)&&calc>=0){tests[i].r1r2=calc.toFixed(2);if(r1r2Input)r1r2Input.value=calc.toFixed(2)}
+  }else if(source==='r1r2'&&tests[i].r1r2){
+    const calc=(parseFloat(tests[i].r1r2)+ze);
+    if(!isNaN(calc)){tests[i].zs=calc.toFixed(2);if(zsInput)zsInput.value=calc.toFixed(2)}
+  }
+  // Update status cell without re-rendering the whole table
+  const zs=getZsStatus(i);
+  const stCell=row.querySelector('td:last-child');
+  if(stCell&&zs){
+    const cls=zs.pass?'zp':zs.warn?'zw':'zf';
+    const txt=zs.pass?'\u2713':zs.warn?'\u26A0':'\u2717';
+    stCell.className=cls;
+    stCell.textContent='';
+    const span=document.createElement('span');span.textContent=txt;stCell.appendChild(span);
+    const br=document.createElement('br');stCell.appendChild(br);
+    const sub=document.createElement('span');sub.style.cssText='font-size:6px;color:#888';sub.textContent=zs.max+'\u03A9';stCell.appendChild(sub);
+  }else if(stCell&&!zs){stCell.className='';stCell.textContent='\u2014'}
+}
+function calcAllR1R2(){
+  const ze=parseFloat(gv('ze'))||0;if(!ze){toast('Set Ze on Supply tab first');return}
+  let count=0;
+  tests.forEach((t,i)=>{
+    if(t.zs&&!t.r1r2){const calc=parseFloat(t.zs)-ze;if(!isNaN(calc)&&calc>=0){t.r1r2=calc.toFixed(2);count++}}
+  });
+  if(count>0){queueSave();renderTests();toast('Calculated '+count+' R1+R2 values')}
+  else{toast('No Zs values to calculate from')}
+}
+function calcAllZs(){
+  const ze=parseFloat(gv('ze'))||0;if(!ze){toast('Set Ze on Supply tab first');return}
+  let count=0;
+  tests.forEach((t,i)=>{
+    if(t.r1r2&&!t.zs){const calc=parseFloat(t.r1r2)+ze;if(!isNaN(calc)){t.zs=calc.toFixed(2);count++}}
+  });
+  if(count>0){queueSave();renderTests();toast('Calculated '+count+' Zs values')}
+  else{toast('No R1+R2 values to calculate from')}
+}
+
+// ===== BONDING & INCOMING =====
+const CHECK_ITEMS=[
+  {key:'waterBond',title:'Water Bonding',icon:'🚰',hint:'Main bonding to water service — 10mm² min (544.1.1)'},
+  {key:'gasBond',title:'Gas Bonding',icon:'🔥',hint:'Main bonding to gas service — 10mm² min (544.1.1)'},
+  {key:'oilBond',title:'Oil/Other Bonding',icon:'🛢️',hint:'Bonding to oil, structural steel etc. if applicable'},
+  {key:'mainsIncoming',title:'Mains Incoming Supply',icon:'⚡',hint:'DNO cutout, service head, meter condition'},
+  {key:'meterTails',title:'Meter Tails',icon:'🔌',hint:'Condition & size of tails from meter to consumer unit'},
+  {key:'consumerUnit',title:'Consumer Unit',icon:'🏠',hint:'Condition, labelling, IP rating, fire rated if domestic'},
+  {key:'earthingArrangement',title:'Earthing Arrangement',icon:'⏚',hint:'Earth electrode/conductor condition, labels present'}
+];
+
+function renderBonding(){
+  let html='<div class="stitle">🔗 Bonding, Earthing &amp; Incoming Supply</div><p style="font-size:9px;color:#555;margin-bottom:12px">Tick status and add photos for each item. Photos will appear full-size in the PDF.</p>';
+  CHECK_ITEMS.forEach(item=>{
+    const c=checks[item.key];
+    const hasPhoto=!!c.photo;
+    html+=`<div class="check-item">
+      <div class="ci-head"><div class="ci-title">${item.icon} ${item.title}</div></div>
+      <div style="font-size:8px;color:#888;margin-bottom:6px">${item.hint}</div>
+      <div class="ci-row">
+        <div class="ci-label">Status:</div>
+        <div class="ci-toggle">
+          <button class="yes${c.status==='pass'?' on':''}" onclick="setCheck('${item.key}','pass')">✓ Pass</button>
+          <button class="no${c.status==='fail'?' on':''}" onclick="setCheck('${item.key}','fail')">✗ Fail</button>
+          <button class="na${c.status==='na'?' on':''}" onclick="setCheck('${item.key}','na')">N/A</button>
+        </div>
+      </div>
+      <input class="ci-note" value="${c.note||''}" oninput="checks['${item.key}'].note=this.value;queueSave()" placeholder="Notes...">
+      <div class="ci-photo">
+        ${hasPhoto?`<div style="position:relative"><img src="${c.photo}"><button class="rm-btn" onclick="rmCheckPhoto('${item.key}')" style="top:4px;right:4px">✕</button></div>`:`<div class="mu" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" capture="environment" onchange="handleCheckPhoto('${item.key}',this)"><span style="font-size:24px">📷</span><span style="font-size:10px;font-weight:600;color:var(--dk)">Add photo evidence</span></div>`}
+      </div>
+    </div>`;
+  });
+  document.getElementById('p-bonding').innerHTML=html;
+}
+function setCheck(key,status){checks[key].status=status;renderBonding();queueSave()}
+async function handleCheckPhoto(key,input){
+  const file=input.files?.[0];if(!file)return;
+  try{const compressed=await compressImage(file,800,0.6);checks[key].photo=compressed;renderBonding();queueSave()}catch(e){console.error('Check photo error:',e);toast('⚠ Photo failed — try a smaller image')}
+}
+function rmCheckPhoto(key){checks[key].photo=null;renderBonding();queueSave()}
+
+// ===== OBSERVATIONS =====
+function renderObs(){
+  let cards='';
+  observations.forEach((o,i)=>{
+    let imgHtml;
+    if(o.image){imgHtml=`<div class="obs-img"><div style="position:relative;display:inline-block"><img src="${o.image}"><button class="rm-btn" onclick="rmObsImg(${i})">✕</button></div></div>`}
+    else{imgHtml=`<div class="obs-img"><div class="mu" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" capture="environment" onchange="handleObsFile(${i},this)"><span style="font-size:20px">📷</span><span style="font-size:8px;color:var(--dk);font-weight:600">Photo</span></div></div>`}
+    const cc=o.code==='C1'?'var(--c1)':o.code==='C2'?'var(--c2)':o.code==='C3'?'var(--c3)':o.code==='FI'?'var(--fi)':'#999';
+    cards+=`<div class="obs-card"><div class="obs-num">${i+1}</div><div class="obs-fields"><input value="${o.obs||''}" oninput="observations[${i}].obs=this.value;queueSave()" placeholder="Enter observation..."><div class="cr"><select onchange="observations[${i}].code=this.value;queueSave();renderObs()" style="max-width:70px;font-weight:700;color:${cc}"><option value="">Code</option>${['C1','C2','C3','FI'].map(c=>`<option${c===o.code?' selected':''}>${c}</option>`).join('')}</select><input value="${o.reg||''}" oninput="observations[${i}].reg=this.value;queueSave()" placeholder="BS 7671 Reg" style="min-width:90px"><input value="${o.location||''}" oninput="observations[${i}].location=this.value;queueSave()" placeholder="Location"></div></div>${imgHtml}</div>`;
+  });
+  document.getElementById('p-observations').innerHTML=`
+    <div class="ai-obs-bar">
+      <div class="ai-title">🤖 Smart Observation Matcher</div>
+      <textarea id="aiObsInput" placeholder="Describe in plain English e.g. 'earth wire not connected at socket in kitchen' or 'no RCD protecting sockets'..." oninput="clearAiResults()"></textarea>
+      <button class="ai-match-btn" onclick="aiMatchObs()" id="aiMatchBtn">🔍 Find Matching Observation</button>
+      <div id="aiObsResults" class="ai-results"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div class="stitle">Observations &amp; Photos</div><button class="add-btn" onclick="addObs()">+ Row</button></div><div id="obsCards">${cards}</div><div class="tip"><strong style="color:var(--c1)">C1</strong> Danger <strong style="color:var(--c2)">C2</strong> Pot. dangerous <strong style="color:var(--c3)">C3</strong> Improvement <strong style="color:var(--fi)">FI</strong> Further investigation | 💡 Use Smart Matcher above to find professional wording from 733 standard observations</div>`;
+}
+function addObs(){observations.push({obs:'',code:'',reg:'',location:'',image:null});renderObs();queueSave()}
+async function handleObsFile(i,input){const file=input.files?.[0];if(!file)return;try{const compressed=await compressImage(file,800,0.6);observations[i].image=compressed;renderObs();queueSave()}catch(e){console.error('Obs photo error:',e);toast('⚠ Photo failed — try a smaller image')}}
+function rmObsImg(i){observations[i].image=null;renderObs();queueSave()}
+
+function clearAiResults(){document.getElementById('aiObsResults')&&(document.getElementById('aiObsResults').innerHTML='')}
+
+function preFilterObs(query){
+  // Local keyword pre-filter to narrow 733 items to top ~80 candidates
+  const q=query.toLowerCase();
+  const words=q.split(/\s+/).filter(w=>w.length>2);
+  const scored=[];
+  if(typeof OBS_DB==='undefined')return[];
+  for(const[sid,sec]of Object.entries(OBS_DB)){
+    sec.items.forEach((text,idx)=>{
+      const t=text.toLowerCase();
+      let score=0;
+      words.forEach(w=>{if(t.includes(w))score+=2;});
+      // Boost exact phrase matches
+      if(t.includes(q))score+=10;
+      // Boost partial phrase matches (3+ word sequences)
+      for(let i=0;i<words.length-1;i++){
+        const pair=words[i]+' '+words[i+1];
+        if(t.includes(pair))score+=3;
+      }
+      if(score>0)scored.push({section:parseInt(sid),sectionName:sec.n,text,score});
+    });
+  }
+  scored.sort((a,b)=>b.score-a.score);
+  return scored.slice(0,80);
+}
+
+async function aiMatchObs(){
+  const input=document.getElementById('aiObsInput').value.trim();
+  if(!input){alert('Please describe the observation first');return}
+  const btn=document.getElementById('aiMatchBtn');
+  const resultsDiv=document.getElementById('aiObsResults');
+  btn.disabled=true;btn.textContent='🔄 Matching...';
+  resultsDiv.innerHTML='<div style="text-align:center;padding:10px;font-size:10px;opacity:0.7">Searching 733 standard observations...</div>';
+  try{
+    // Pre-filter locally first
+    const candidates=preFilterObs(input);
+    // Build candidate list for AI
+    let candidateText='';
+    if(candidates.length>0){
+      candidateText='\n\nPRE-FILTERED CANDIDATES (ranked by keyword relevance):\n';
+      candidates.forEach((c,i)=>{
+        candidateText+=`${i+1}. [Section: ${c.sectionName}] ${c.text}\n`;
+      });
+    }
+    // Also include all section names so AI can suggest even without pre-filter match
+    let sectionList='\n\nALL AVAILABLE SECTIONS:\n';
+    if(typeof OBS_DB!=='undefined'){
+      for(const[sid,sec]of Object.entries(OBS_DB)){
+        sectionList+=`${sid}. ${sec.n} (${sec.items.length} items)\n`;
+      }
+    }
+    // Send full observation database for sections with likely matches
+    let fullSections='';
+    if(candidates.length>0){
+      const topSections=new Set(candidates.slice(0,30).map(c=>c.section));
+      fullSections='\n\nFULL OBSERVATION LISTS FOR TOP MATCHING SECTIONS:\n';
+      topSections.forEach(sid=>{
+        const sec=OBS_DB[String(sid)];
+        if(sec){
+          fullSections+=`\n--- ${sec.n} ---\n`;
+          sec.items.forEach((t,i)=>{fullSections+=`${i+1}. ${t}\n`;});
+        }
+      });
+    }
+    const systemPrompt=`You are an expert UK electrician helping match plain-English descriptions to official EICR observation wording from the Electraform database (BS 7671:2018+A3:2024).
+
+You have access to a database of 733 standard EICR observations across 25 inspection sections.
+
+TASK: Given the user's plain-English description, find the 3 best matching official observations from the database. For each match, provide:
+1. The EXACT observation text from the database (do not modify it)
+2. The section it belongs to
+3. A suggested classification code (C1/C2/C3/FI) based on the severity
+4. The BS 7671 regulation reference (extract from the observation text, or suggest the most applicable one)
+
+IMPORTANT: 
+- Return EXACT text from the database, not paraphrased versions
+- If no good match exists in the pre-filtered candidates, suggest the closest match and note it may not be exact
+- Consider the severity: exposed live parts = C1, missing protection = C2, improvements = C3, needs checking = FI
+
+Return ONLY valid JSON array:
+[{"text":"exact observation text","section":"section name","code":"C1/C2/C3/FI","reg":"regulation reference","confidence":"high/medium/low"}]`;
+
+    const userMsg=`ELECTRICIAN'S DESCRIPTION: "${input}"${candidateText}${fullSections}${sectionList}
+
+Find the 3 best matching observations. Return JSON array only.`;
+
+    const res=await fetch('/api/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:systemPrompt,messages:[{role:'user',content:userMsg}]})
+    });
+    if(!res.ok)throw new Error('API error: '+res.status);
+    const data=await res.json();
+    const content=data.content?.[0]?.text||'';
+    // Parse JSON from response
+    const jsonMatch=content.match(/\[[\s\S]*\]/);
+    if(!jsonMatch)throw new Error('No valid matches found');
+    const matches=JSON.parse(jsonMatch[0]);
+    // Render results
+    let html='';
+    matches.forEach((m,i)=>{
+      const codeClass='am-code-'+m.code.toLowerCase();
+      html+=`<div class="ai-match" onclick="acceptAiObs(${i})" data-obs='${JSON.stringify(m).replace(/'/g,"&#39;")}'>
+        <div class="am-section">📋 ${m.section}</div>
+        <div class="am-text">${m.text}</div>
+        <div class="am-meta">
+          <span class="am-code ${codeClass}">${m.code}</span>
+          <span class="am-reg">Reg ${m.reg||'—'}</span>
+          <span style="color:rgba(255,255,255,0.5)">${m.confidence||''} match</span>
+          <span style="margin-left:auto;color:#4caf50;font-weight:700">TAP TO ADD ▸</span>
+        </div>
+      </div>`;
+    });
+    resultsDiv.innerHTML=html;
+    // Store matches for acceptance
+    window._aiMatches=matches;
+  }catch(e){
+    resultsDiv.innerHTML=`<div style="color:#ff5252;padding:8px;font-size:10px">❌ ${e.message}</div>`;
+  }finally{
+    btn.disabled=false;btn.textContent='🔍 Find Matching Observation';
+  }
+}
+
+function acceptAiObs(idx){
+  const m=window._aiMatches?.[idx];
+  if(!m)return;
+  // Find first empty observation slot, or add new one
+  let slot=observations.findIndex(o=>!o.obs);
+  if(slot===-1){observations.push({obs:'',code:'',reg:'',location:'',image:null});slot=observations.length-1;}
+  observations[slot].obs=m.text;
+  observations[slot].code=m.code;
+  observations[slot].reg=m.reg||'';
+  renderObs();queueSave();
+  // Scroll to the new observation
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('.obs-card');
+    if(cards[slot])cards[slot].scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+// ===== BOARD SCAN =====
+async function handleBoardFile(input){const file=input.files?.[0];if(!file)return;try{const compressed=await compressImage(file,1600,0.8);boardImage=compressed;const preview=document.getElementById('boardPreview');preview.textContent='';const img=document.createElement('img');img.src=boardImage;preview.appendChild(img);const span=document.createElement('span');span.style.cssText='font-size:9px;color:#888';span.textContent='Tap to change';preview.appendChild(document.createElement('br'));preview.appendChild(span);queueSave();scanBoard(boardImage,'image/jpeg')}catch(e){toast('Photo error')}}
+async function scanBoard(dataUrl,mimeType){
+  const statusEl=document.getElementById('scanStatus');
+  if(!navigator.onLine){statusEl.innerHTML='<div class="ss err">📴 Offline</div>';return}
+  statusEl.innerHTML='<div class="ss ld"><div class="spinner"></div>Analysing with Claude AI...</div>';
+  try{
+    const base64=dataUrl.split(',')[1];const mediaType=mimeType.includes('png')?'image/png':'image/jpeg';
+    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'You are an expert UK electrician analyzing a consumer unit photo for an EICR to BS 7671. Return ONLY valid JSON:\n{"board":{"manufacturer":"","model":"","mainSwitchRating":"","totalWays":""},"circuits":[{"cct":"1","desc":"","dev":"B","rating":"6","idn":"30","isRCD":false,"rcdProtected":true}],"observations":[{"obs":"","code":"C2","reg":"411.3.3"}]}\nRead every MCB/RCBO type+rating. Flag sockets without 30mA RCD as C2 (Reg 411.3.3). Include RCD rows with isRCD:true.'}]}]})});
+    if(!res.ok){const err=await res.json();throw new Error(err.error?.message||'API error '+res.status)}
+    const data=await res.json();const text=data.content?.map(b=>b.type==='text'?b.text:'').join('')||'';
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(parsed.board){sv('dbDesignation',(parsed.board.manufacturer||'')+' '+(parsed.board.model||''));sv('supplyRating',parsed.board.mainSwitchRating||'')}
+    if(parsed.circuits?.length){
+      circuits=parsed.circuits.map((pc,i)=>({cct:pc.cct||''+(i+1),desc:pc.desc||'',ref:pc.isRCD?'':'A',pts:'',live:pc.isRCD?'':(parseInt(pc.rating)<=6?'1.0':parseInt(pc.rating)<=32?'2.5':'6.0'),cpc:pc.isRCD?'':(parseInt(pc.rating)<=6?'1.0':parseInt(pc.rating)<=32?'1.5':'2.5'),disc:pc.isRCD?'':'0.4',dev:pc.isRCD?'—':(pc.dev||'B'),rating:pc.isRCD?'':(pc.rating||''),bsEn:pc.bsEn||'',idn:pc.idn||(pc.rcdProtected?'30':'N/A'),rcdTime:''}));
+      while(circuits.length<8)circuits.push({cct:''+(circuits.length+1),desc:'',ref:'',pts:'',live:'',cpc:'',disc:'0.4',dev:'B',rating:'',idn:'',rcdTime:''});
+      tests=circuits.map(c=>({cct:c.cct,desc:c.desc,r1:'',rn:'',r2:'',irLN:'',irLE:'',irNE:'',r1r2:'',zs:'',rcd:'',rcdButton:false}));
+    }
+    if(parsed.observations?.length){observations=parsed.observations.map(o=>({obs:o.obs||'',code:o.code||'',reg:o.reg||'',location:'Consumer Unit',image:null}));while(observations.length<4)observations.push({obs:'',code:'',reg:'',location:'',image:null})}
+    queueSave();statusEl.innerHTML=`<div class="ss ok">✓ Found ${parsed.circuits?.length||0} circuits</div>`;
+    setTimeout(()=>document.querySelector('[data-tab="circuits"]').click(),1200);
+  }catch(err){statusEl.innerHTML=`<div class="ss err">✗ ${err.message}</div>`}
+}
+
+// ===== SUMMARY =====
+function updateSummary(){
+  const cCount=circuits.filter(c=>c.desc).length,tCount=tests.filter(t=>t.zs||t.irLN).length;
+  const zsPass=tests.filter((_,i)=>{const s=getZsStatus(i);return s&&s.pass}).length;
+  const obsCount=observations.filter(o=>o.obs).length,photoCount=observations.filter(o=>o.image).length;
+  const bondPhotos=Object.values(checks).filter(c=>c.photo).length;
+  const c1=observations.filter(o=>o.code==='C1').length,c2=observations.filter(o=>o.code==='C2').length;
+  const stats=[{l:'Circuits',v:cCount,c:'#1a1a2e'},{l:'Tested',v:tCount,c:'#3f51b5'},{l:'Zs Pass',v:zsPass,c:'#2e7d32'},{l:'Obs',v:obsCount,c:'#e65100'},{l:'Photos',v:photoCount+bondPhotos,c:'#7b1fa2'},{l:'C1',v:c1,c:c1>0?'#d32f2f':'#999'},{l:'C2',v:c2,c:c2>0?'#e65100':'#999'}];
+  const cond=gv('overallCondition');let badge='';
+  if(cond==='Satisfactory')badge='<div class="cb sat">✓ SATISFACTORY</div>';
+  else if(cond==='Unsatisfactory')badge='<div class="cb un">✗ UNSATISFACTORY</div>';
+  const prevComments=gv('assessmentComments')||'';
+  document.getElementById('p-summary').innerHTML=`<div class="stitle">Overall Assessment</div><div class="fr">${field('overallCondition','Overall Condition','select',{cls:'h',options:['—','Satisfactory','Unsatisfactory']})}${field('nextInspection','Next Inspection','date',{cls:'h'})}</div><div style="margin-top:8px"><label style="display:block;font-size:9px;font-weight:600;color:#555;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em">Inspector Comments / General Remarks</label><textarea data-field="assessmentComments" oninput="queueSave()" placeholder="Enter any general comments, limitations of the inspection, or remarks for the client..." style="width:100%;min-height:100px;padding:8px;border:1.5px solid #d0d0d0;border-radius:5px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:var(--inp);outline:none;resize:vertical;-webkit-appearance:none">${prevComments}</textarea></div><div class="stitle" style="margin-top:10px">Summary</div><div class="sg">${stats.map(s=>`<div class="sb"><div class="v" style="color:${s.c}">${s.v}</div><div class="l">${s.l}</div></div>`).join('')}</div>${badge}<div style="text-align:center;margin-top:16px"><button class="hbtn pdf" style="padding:12px 36px;font-size:12px" onclick="generatePDF()">📄 Generate PDF</button></div>`;
+}
+
+// ===== PDF GENERATION =====
+async function generatePDF(){
+  toast('Generating PDF...');
+  const{jsPDF}=window.jspdf;const doc=new jsPDF('portrait','mm','a4');
+  const W=210,M=10,CW=W-2*M;let y=8;
+  const DK=[26,26,46],AM=[212,160,23],WH=[255,255,255],GR=[136,136,136],BD=[200,200,200];
+  function sh(t){doc.setFillColor(...DK);doc.rect(M,y,CW,5,'F');doc.setTextColor(...AM);doc.setFontSize(6);doc.setFont('helvetica','bold');doc.text(t.toUpperCase(),M+3,y+3.5);y+=5.5;doc.setTextColor(0,0,0)}
+  function fr(fields,h){h=h||7;var fw=CW/fields.length;fields.forEach(function(f,i){var x=M+i*fw;doc.setDrawColor(...BD);doc.setFillColor(255,253,231);doc.rect(x,y,fw,h,'FD');doc.setTextColor(...GR);doc.setFontSize(4.5);doc.setFont('helvetica','normal');doc.text(f.l,x+1.5,y+3);doc.setTextColor(0,0,0);doc.setFontSize(6);doc.setFont('helvetica','bold');if(f.v)doc.text(String(f.v),x+1.5,y+h-1.5)});y+=h+.3}
+  function tH(headers,widths){var x=M;headers.forEach(function(h,i){doc.setFillColor(...DK);doc.rect(x,y,widths[i],7,'F');doc.setTextColor(...WH);doc.setFontSize(4);doc.setFont('helvetica','bold');h.split('\n').forEach(function(l,j){var tw=doc.getTextWidth(l);doc.text(l,x+(widths[i]-tw)/2,y+3+j*3)});x+=widths[i]});y+=7;doc.setTextColor(0,0,0)}
+  function tR(vals,widths,rh,alt){rh=rh||5.5;var x=M;vals.forEach(function(v,i){doc.setFillColor(alt?250:255,alt?250:255,alt?252:255);doc.setDrawColor(...BD);doc.rect(x,y,widths[i],rh,'FD');if(v){doc.setFontSize(5);doc.setFont('helvetica',i===0?'bold':'normal');var tw=doc.getTextWidth(String(v));doc.text(String(v),x+(widths[i]-tw)/2,y+rh-1.5)}x+=widths[i]});y+=rh}
+  function pageFooter(){var cn=getCompanyName();doc.setFillColor(...DK);doc.rect(M,285,CW,4,'F');doc.setTextColor(...GR);doc.setFontSize(3.5);doc.text('BS 7671:2018+A2:2022 | '+selectedBsStd,M+3,287.5);doc.setTextColor(...AM);doc.setFont('helvetica','bold');doc.text(cn,W-M-3,287.5,{align:'right'})}
+
+  // PAGE 1 - Header
+  var compName=getCompanyName();
+  doc.setFillColor(...DK);doc.rect(M,y,CW,16,'F');doc.setFillColor(...AM);doc.rect(M,y+16,CW,.6,'F');
+  doc.setTextColor(...AM);doc.setFontSize(5.5);doc.text('ELECTRICAL INSTALLATION CONDITION REPORT',M+4,y+5);
+  doc.setTextColor(...WH);doc.setFontSize(12);doc.setFont('helvetica','bold');doc.text('EICR Certificate',M+4,y+11);
+  doc.setFontSize(6);doc.setFont('helvetica','normal');doc.text('BS 7671:2018+A2:2022',M+4,y+15);
+  doc.setTextColor(...AM);doc.setFontSize(8);doc.setFont('helvetica','bold');doc.text(compName,W-M-4,y+7,{align:'right'});
+  doc.setTextColor(...GR);doc.setFontSize(5.5);doc.setFont('helvetica','normal');doc.text('DB: '+(gv('dbRef')||'—')+' | '+selectedBsStd,W-M-4,y+15,{align:'right'});y+=19;
+
+  sh('Client');fr([{l:'Name',v:gv('clientName')||'N/A'},{l:'Tel',v:gv('clientTel')||'N/A'}]);fr([{l:'Address',v:gv('clientAddress')||'N/A'},{l:'Email',v:gv('clientEmail')||'N/A'}]);
+  sh('Installation');fr([{l:'Address',v:gv('installAddress')||'N/A'},{l:'Postcode',v:gv('installPostcode')||'N/A'}]);fr([{l:'Description',v:gv('installDesc')||'N/A'},{l:'Age',v:gv('installAge')||'N/A'}]);
+  sh('Supply & Earthing');fr([{l:'System',v:gv('earthing')||'N/A'},{l:'Ze(Ω)',v:gv('ze')||'N/A'},{l:'PFC(kA)',v:gv('pfc')||'N/A'}]);fr([{l:'Device',v:gv('supplyDevice')||'N/A'},{l:'Rating(A)',v:gv('supplyRating')||'N/A'},{l:'Bonding(mm²)',v:gv('mainBonding')||'N/A'}]);
+
+  // Bonding summary table
+  sh('Bonding & Incoming Checks');
+  CHECK_ITEMS.forEach((item,i)=>{
+    const c=checks[item.key];const st=c.status==='pass'?'PASS':c.status==='fail'?'FAIL':c.status==='na'?'N/A':'—';
+    const col=c.status==='pass'?[46,125,50]:c.status==='fail'?[211,47,47]:[136,136,136];
+    fr([{l:item.title,v:st+(c.note?' — '+c.note:'')}],6);
+  });
+
+  sh('Circuit Schedule');var cW=[12,34,13,11,13,13,14,13,13,18,16,17].map(w=>w*CW/187);
+  tH(['Cct','Description','Ref','Pts','Live\nmm²','CPC\nmm²','Disc','Dev','Rate','BS EN','IΔn','RCD'],cW);
+  var fc=circuits.filter(c=>c.desc);(fc.length?fc:circuits.slice(0,7)).forEach((c,i)=>tR([c.cct||'N/A',c.desc||'N/A',c.ref||'N/A',c.pts||'N/A',c.live||'N/A',c.cpc||'N/A',c.disc||'N/A',c.dev||'N/A',c.rating||'N/A',c.bsEn||'N/A',c.idn||'N/A',c.rcdTime||'N/A'],cW,5,i%2===1));
+
+  if(y>240){doc.addPage();y=10}
+  var zeVal=parseFloat(gv('ze'))||0;
+  sh('Test Results — '+selectedBsStd+(zeVal?' | Ze='+zeVal+'Ω | Zs = Ze + (R1+R2)':''));
+  var tW=[12,36,11,11,11,11,11,11,14,14,13,13,12].map(w=>w*CW/180);
+  tH(['Cct','Desc','R1\nΩ','Rn\nΩ','R2\nΩ','IR\nL-N','IR\nL-E','IR\nN-E','R1+R2\nΩ','Zs\nΩ','RCD\nms','RCD\nBtn','P/F'],tW);
+  var ft=tests.filter((t,i)=>t.zs||t.r1r2||t.irLN||circuits[i]?.desc);(ft.length?ft:tests.slice(0,7)).forEach((t,i)=>{
+    var r1r2=t.r1r2,zs=t.zs;
+    // Apply bidirectional calc for PDF
+    if(zeVal>0){
+      if(zs&&!r1r2){var c2=(parseFloat(zs)-zeVal);if(c2>=0)r1r2=c2.toFixed(2)+'*'}
+      if(r1r2&&!zs){zs=(parseFloat(r1r2)+zeVal).toFixed(2)+'*'}
+    }
+    var zsSt=getZsStatus(i);
+    tR([t.cct||''+(i+1),t.desc||circuits[i]?.desc||'N/A',t.r1||'N/A',t.rn||'N/A',t.r2||'N/A',t.irLN||'N/A',t.irLE||'N/A',t.irNE||'N/A',r1r2||'N/A',zs||'N/A',t.rcd||'N/A',t.rcdButton?'✓':'N/A',zsSt?(zsSt.pass?'PASS':'FAIL'):'N/A'],tW,5,i%2===1);
+  });
+  doc.setTextColor(...GR);doc.setFontSize(4);doc.setFont('helvetica','italic');
+  doc.text('* = auto-calculated using Zs = Ze + (R1+R2) where Ze = '+(zeVal||'N/A')+'Ω  |  Zs checked at 80% of max per '+selectedBsStd,M,y+1);y+=3;
+
+  sh('Observations');var oW=[10,95,18,20,25].map(w=>w*CW/168);
+  tH(['No.','Observation','Code','Reg.','Location'],oW);
+  var fo=observations.filter(o=>o.obs);(fo.length?fo:observations.slice(0,4)).forEach((o,i)=>tR([''+(i+1),o.obs||'N/A',o.code||'N/A',o.reg||'N/A',o.location||'N/A'],oW,5,i%2===1));
+
+  y+=1;sh('Assessment');fr([{l:'Condition',v:gv('overallCondition')||'N/A'},{l:'Next Inspection',v:gv('nextInspection')||'N/A'}]);
+  fr([{l:'Inspector',v:gv('inspectorName')||'N/A'},{l:'Quals',v:gv('inspectorQual')||'N/A'},{l:'Reg',v:gv('inspectorReg')||'N/A'}]);
+  // Comments box
+  var comments=gv('assessmentComments');
+  if(comments){
+    y+=1;
+    doc.setFillColor(255,253,231);doc.setDrawColor(...BD);doc.rect(M,y,CW,4,'FD');
+    doc.setTextColor(...GR);doc.setFontSize(4.5);doc.setFont('helvetica','normal');doc.text('INSPECTOR COMMENTS',M+1.5,y+2.8);y+=4;
+    doc.setFillColor(255,255,255);
+    var lines=doc.splitTextToSize(comments,CW-4);
+    var boxH=Math.max(8,lines.length*3.5+3);
+    doc.rect(M,y,CW,boxH,'FD');
+    doc.setTextColor(0,0,0);doc.setFontSize(5.5);doc.setFont('helvetica','normal');
+    lines.forEach(function(line,li){doc.text(line,M+2,y+3.5+li*3.5)});
+    y+=boxH+.5;
+  }
+  pageFooter();
+
+  // PAGE : BONDING & INCOMING PHOTOS (BIG)
+  var bondPhotos=CHECK_ITEMS.filter(item=>checks[item.key].photo);
+  if(bondPhotos.length){
+    doc.addPage();y=10;
+    doc.setFillColor(...DK);doc.rect(M,y,CW,8,'F');
+    doc.setTextColor(...AM);doc.setFontSize(8);doc.setFont('helvetica','bold');
+    doc.text('BONDING & INCOMING SUPPLY — PHOTOGRAPHIC EVIDENCE',M+4,y+5.5);y+=14;
+    bondPhotos.forEach(item=>{
+      const c=checks[item.key];
+      if(y>170){doc.addPage();y=10}
+      // Title
+      doc.setTextColor(0,0,0);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text(item.icon+' '+item.title,M,y);
+      const st=c.status==='pass'?'PASS':c.status==='fail'?'FAIL':'N/A';
+      doc.setFontSize(8);doc.setTextColor(c.status==='pass'?46:c.status==='fail'?211:136,c.status==='pass'?125:c.status==='fail'?47:136,c.status==='pass'?50:c.status==='fail'?47:136);
+      doc.text(' — '+st,M+doc.getTextWidth(item.icon+' '+item.title)+2,y);
+      y+=3;
+      if(c.note){doc.setTextColor(...GR);doc.setFontSize(6);doc.setFont('helvetica','normal');doc.text(c.note,M,y+2);y+=5}
+      // BIG photo — 170mm wide (nearly full A4 width)
+      try{
+        const imgW=CW-10;const imgH=imgW*0.6; // ~114mm tall
+        doc.addImage(c.photo,'JPEG',M+5,y,imgW,imgH);
+        y+=imgH+8;
+      }catch(e){y+=5}
+    });
+    pageFooter();
+  }
+
+  // PAGE 3+ : OBSERVATION PHOTOS (BIG)
+  var obsWithImg=observations.filter(o=>o.image);
+  if(obsWithImg.length){
+    doc.addPage();y=10;
+    doc.setFillColor(...DK);doc.rect(M,y,CW,8,'F');
+    doc.setTextColor(...AM);doc.setFontSize(8);doc.setFont('helvetica','bold');
+    doc.text('OBSERVATION PHOTOGRAPHS',M+4,y+5.5);y+=14;
+    obsWithImg.forEach(o=>{
+      if(y>160){doc.addPage();y=10}
+      // Title
+      doc.setTextColor(0,0,0);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('['+(o.code||'?')+'] '+(o.obs||''),M,y);y+=3;
+      doc.setTextColor(...GR);doc.setFontSize(6);doc.setFont('helvetica','normal');
+      doc.text('Reg: '+(o.reg||'—')+' | '+(o.location||''),M,y+2);y+=6;
+      // BIG photo — 160mm wide
+      try{
+        const imgW=CW-20;const imgH=imgW*0.65;
+        doc.addImage(o.image,'JPEG',M+10,y,imgW,imgH);
+        y+=imgH+10;
+      }catch(e){y+=5}
+    });
+    pageFooter();
+  }
+
+  doc.save('EICR_'+(gv('clientName')||'Report').replace(/\s+/g,'_')+'_'+(gv('inspectorDate')||new Date().toISOString().split('T')[0])+'.pdf');
+  toast('✓ PDF downloaded');
+}
+
+// ===== INIT =====
+function init(){
+  selectedBsStd=localStorage.getItem('eicr_bs_std')||'BS 60898';
+  initTabs();initData();renderDetails();renderSupply();renderScan();renderCircuits();renderTests();renderBonding();renderObs();
+  // Load autosave
+  try{
+    const raw=localStorage.getItem('eicr_autosave');
+    if(raw){const state=JSON.parse(raw);applyState(state)}
+  }catch(e){}
+  // Defaults
+  if(!gv('inspectorName'))sv('inspectorName',localStorage.getItem('eicr_inspector')||'');
+  if(!gv('inspectorQual'))sv('inspectorQual',localStorage.getItem('eicr_quals')||'');
+  if(!gv('inspectorReg'))sv('inspectorReg',localStorage.getItem('eicr_reg')||'');
+  updateFooter();
+}
+init();
+</script>
+</body>
+</html>

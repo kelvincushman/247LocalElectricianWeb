@@ -1,0 +1,9 @@
+name = "eicr-scanner"
+compatibility_date = "2024-09-25"
+
+# Pages will auto-detect functions/ directory
+# No need for explicit route config
+
+# Environment variables are set via dashboard or CLI:
+# npx wrangler pages secret put ANTHROPIC_API_KEY
+# npx wrangler pages secret put ALLOWED_ORIGIN
