@@ -20,6 +20,13 @@ import {
   ClipboardCheck,
   Award,
   PlusCircle,
+  Bot,
+  MessageSquare,
+  Radio,
+  Target,
+  BarChart3,
+  Mail,
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -49,6 +56,19 @@ const navItems: NavItem[] = [
   { label: 'Documents', href: '/portal/documents', icon: FolderOpen },
   { label: 'Users', href: '/portal/users', icon: Users, adminOnly: true },
   { label: 'Settings', href: '/portal/settings', icon: Settings, adminOnly: true },
+];
+
+// AI Gateway nav items (staff/admin only)
+const gatewayNavItems: NavItem[] = [
+  { label: 'AI Gateway', href: '/portal/gateway', icon: Bot, staffOnly: true },
+  { label: 'Inbox', href: '/portal/gateway/inbox', icon: MessageSquare, staffOnly: true },
+  { label: 'Channels', href: '/portal/gateway/channels', icon: Radio, staffOnly: true },
+  { label: 'Leads', href: '/portal/gateway/leads', icon: Target, staffOnly: true },
+  { label: 'Chase Invoices', href: '/portal/gateway/invoices', icon: Receipt, staffOnly: true },
+  { label: 'Cert Renewals', href: '/portal/gateway/certificates', icon: FileCheck, staffOnly: true },
+  { label: 'Email', href: '/portal/gateway/emails', icon: Mail, staffOnly: true },
+  { label: 'Outbound', href: '/portal/gateway/outbound', icon: Send, staffOnly: true },
+  { label: 'Analytics', href: '/portal/gateway/analytics', icon: BarChart3, staffOnly: true },
 ];
 
 // Business customer specific nav items
@@ -131,7 +151,7 @@ export default function PortalSidebar() {
         <ul className="space-y-1 px-2">
           {filteredNavItems.map((item) => {
             const isActive = location.pathname === item.href ||
-              (item.href !== '/portal' && location.pathname.startsWith(item.href));
+              (item.href !== '/portal' && location.pathname.startsWith(item.href) && !location.pathname.startsWith('/portal/gateway'));
             const Icon = item.icon;
 
             return (
@@ -153,6 +173,43 @@ export default function PortalSidebar() {
             );
           })}
         </ul>
+
+        {/* AI Gateway Section */}
+        {isStaff && (
+          <>
+            {!isCollapsed && (
+              <div className="px-4 pt-4 pb-1">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">AI Gateway</p>
+              </div>
+            )}
+            {isCollapsed && <div className="border-t border-slate-700 mx-2 my-2" />}
+            <ul className="space-y-1 px-2">
+              {gatewayNavItems.map((item) => {
+                const isActive = location.pathname === item.href ||
+                  (item.href !== '/portal/gateway' && location.pathname.startsWith(item.href));
+                const Icon = item.icon;
+
+                return (
+                  <li key={item.href}>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                        isActive
+                          ? 'bg-blue-600 text-white'
+                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      )}
+                      title={isCollapsed ? item.label : undefined}
+                    >
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </nav>
 
       {/* Back to Website & Logout */}

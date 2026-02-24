@@ -29,5 +29,19 @@ module.exports = {
       watch: false,
       max_memory_restart: '500M',
     },
+    {
+      name: 'openclaw-gateway',
+      interpreter: '/home/ubuntu-server/.nvm/versions/node/v22.22.0/bin/node',
+      script: '/home/ubuntu-server/.nvm/versions/node/v22.22.0/bin/openclaw',
+      args: 'gateway --port 18789',
+      env: {
+        OPENCLAW_HOME: '/home/ubuntu-server/.openclaw',
+        OPENCLAW_GATEWAY_TOKEN: process.env.OPENCLAW_GATEWAY_TOKEN || '',
+        PATH: '/home/ubuntu-server/.nvm/versions/node/v22.22.0/bin:' + process.env.PATH,
+      },
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '300M',
+    },
   ],
 };

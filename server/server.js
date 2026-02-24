@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
@@ -7673,7 +7674,12 @@ app.get('/api/portal/my/certificates', isAuthenticated, async (req, res) => {
   }
 });
 
+// Initialize Gateway Relay (OpenClaw integration)
+const { initGatewayRelay } = require('./gateway');
+const httpServer = http.createServer(app);
+initGatewayRelay(httpServer, app, pool, isStaff);
+
 // Start server
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`247Electrician API server running on port ${PORT}`);
 });

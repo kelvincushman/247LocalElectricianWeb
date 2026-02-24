@@ -1,10 +1,12 @@
 const express = require('express');
+const http = require('http');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 8084;
 const API_URL = process.env.API_URL || 'http://localhost:3247';
+const server = http.createServer(app);
 
 // Trust proxy for Cloudflare
 app.set('trust proxy', true);
@@ -79,7 +81,21 @@ app.use((req, res, next) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-app.listen(PORT, () => {
+// WebSocket proxy for /ws/gateway
+const wsProxy = createProxyMiddleware({
+  target: API_URL.replace('http', 'ws'),
+  ws: true,
+  changeOrigin: true,
+});
+
+server.on('upgrade', (req, socket, head) => {
+  if (req.url === '/ws/gateway') {
+    wsProxy.upgrade(req, socket, head);
+  }
+});
+
+server.listen(PORT, () => {
   console.log(`Static server running on port ${PORT}`);
   console.log(`Proxying /api to ${API_URL}`);
+  console.log(`WebSocket proxy /ws/gateway to ${API_URL}`);
 });

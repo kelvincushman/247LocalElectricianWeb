@@ -160,6 +160,19 @@ const NotificationSettings = lazy(() => import("./pages/portal/settings/Notifica
 const TestInstruments = lazy(() => import("./pages/portal/settings/TestInstruments"));
 const EngineerProfile = lazy(() => import("./pages/portal/settings/EngineerProfile"));
 
+// Portal - Gateway Pages
+const GatewayDashboard = lazy(() => import("./pages/portal/gateway/GatewayDashboard"));
+const ConversationInbox = lazy(() => import("./pages/portal/gateway/ConversationInbox"));
+const ConversationThread = lazy(() => import("./pages/portal/gateway/ConversationThread"));
+const ChannelConfig = lazy(() => import("./pages/portal/gateway/ChannelConfig"));
+const AgentSettings = lazy(() => import("./pages/portal/gateway/AgentSettings"));
+const GatewayLeads = lazy(() => import("./pages/portal/gateway/GatewayLeads"));
+const InvoiceChasing = lazy(() => import("./pages/portal/gateway/InvoiceChasing"));
+const CertificateRenewals = lazy(() => import("./pages/portal/gateway/CertificateRenewals"));
+const EmailManagement = lazy(() => import("./pages/portal/gateway/EmailManagement"));
+const OutboundMessages = lazy(() => import("./pages/portal/gateway/OutboundMessages"));
+const GatewayAnalytics = lazy(() => import("./pages/portal/gateway/GatewayAnalytics"));
+
 // Area Pages - loaded via index export file (all areas share AreaPage component)
 import {
   BilstonArea,
@@ -410,6 +423,19 @@ const App = () => (
                 <Route path="chatbot/conversations" element={<ChatbotConversationList />} />
                 <Route path="chatbot/conversations/:id" element={<ChatbotConversationDetail />} />
                 <Route path="chatbot/leads" element={<ChatbotLeadsList />} />
+
+                {/* AI Gateway Routes */}
+                <Route path="gateway" element={<GatewayDashboard />} />
+                <Route path="gateway/inbox" element={<ConversationInbox />} />
+                <Route path="gateway/inbox/:id" element={<ConversationThread />} />
+                <Route path="gateway/channels" element={<ChannelConfig />} />
+                <Route path="gateway/agent" element={<AgentSettings />} />
+                <Route path="gateway/leads" element={<GatewayLeads />} />
+                <Route path="gateway/invoices" element={<InvoiceChasing />} />
+                <Route path="gateway/certificates" element={<CertificateRenewals />} />
+                <Route path="gateway/emails" element={<EmailManagement />} />
+                <Route path="gateway/outbound" element={<OutboundMessages />} />
+                <Route path="gateway/analytics" element={<GatewayAnalytics />} />
 
                 {/* Business Customer Routes */}
                 <Route path="my-properties" element={<MyProperties />} />
