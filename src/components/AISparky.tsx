@@ -135,14 +135,14 @@ const AISparky = () => {
                 </a>
               )}
 
-              <a href="https://wa.me/441234567890?text=Hi%2C%20I%20used%20AI%20Sparky%20and%20need%20help%20with%20an%20electrical%20issue" target="_blank" rel="noopener noreferrer" className="block">
+              <a href="https://wa.me/441902943929?text=Hi%2C%20I%20used%20AI%20Sparky%20and%20need%20help%20with%20an%20electrical%20issue" target="_blank" rel="noopener noreferrer" className="block">
                 <Button size="lg" variant="outline" className="w-full border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-bold text-lg py-6">
                   <MessageCircle className="mr-2 h-5 w-5" />
                   WhatsApp Us
                 </Button>
               </a>
 
-              <a href="tel:01234567890" className="block">
+              <a href="tel:01902943929" className="block">
                 <Button size="lg" variant="outline" className="w-full border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-bold text-lg py-6">
                   <Phone className="mr-2 h-5 w-5" />
                   Call Us

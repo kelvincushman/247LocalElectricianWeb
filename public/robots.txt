@@ -10,5 +10,28 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://247electrician.uk/sitemap.xml
+
+# LLM Content Files
+# For AI/LLM crawlers - structured content for language models
+# llms.txt: https://247electrician.uk/llms.txt
+# llms-full.txt: https://247electrician.uk/llms-full.txt

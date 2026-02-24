@@ -1,4 +1,6 @@
 import { Shield, CheckCircle, Award, MapPin, Phone, MessageCircle, Zap, Sun } from "lucide-react";
+import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
@@ -21,6 +23,11 @@ const About = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>About Us | Kelvin & Andy | 247Electrician Black Country & Birmingham</title>
+        <meta name="description" content="Meet Kelvin & Andy - Gold Card JIB electricians with 65+ years combined experience. NAPIT approved, fully insured. Serving Black Country, Birmingham, Walsall & Cannock." />
+        <link rel="canonical" href="https://247electrician.uk/about" />
+      </Helmet>
       <Header />
 
       <main className="flex-grow">
@@ -31,7 +38,7 @@ const About = () => {
               Your Local Electricians — Kelvin & Andy
             </h1>
             <p className="text-xl max-w-3xl mx-auto opacity-90">
-              With over six decades of combined experience, we bring industry-leading electrical knowledge directly to your home.
+              With over <strong>65 YEARS</strong> of combined experience, we bring industry-leading electrical knowledge directly to your home.
             </p>
           </div>
         </section>
@@ -41,14 +48,71 @@ const About = () => {
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
               {/* Kelvin */}
-              <Card className="border-2 border-primary overflow-hidden">
-                <div className="bg-primary text-primary-foreground p-8 text-center">
-                  <div className="w-32 h-32 rounded-full bg-white/20 mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-5xl font-black">K</span>
-                  </div>
-                  <h2 className="text-2xl font-black">Kelvin Lee</h2>
-                  <p className="text-sm opacity-90">(Kelvin Cushman)</p>
-                </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <Card className="border-2 border-primary overflow-hidden h-full">
+                  <motion.div
+                    className="relative overflow-hidden"
+                    initial="rest"
+                    whileHover="hover"
+                    animate="rest"
+                  >
+                    {/* Default blue background with profile */}
+                    <div className="bg-primary text-primary-foreground p-8 text-center relative z-10">
+                      <motion.div
+                        className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border-4 border-white/30"
+                        variants={{
+                          rest: { scale: 1 },
+                          hover: { scale: 1.05 }
+                        }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <img
+                          src="/images/kelvin-profile.jpg"
+                          alt="Kelvin Lee"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            target.parentElement!.innerHTML = '<span class="text-5xl font-black flex items-center justify-center h-full bg-white/20">K</span>';
+                          }}
+                        />
+                      </motion.div>
+                      <h2 className="text-2xl font-black">Kelvin Lee</h2>
+                      <p className="text-sm opacity-90">(Kelvin Cushman)</p>
+                    </div>
+
+                    {/* Full image wipe-up on hover */}
+                    <motion.div
+                      className="absolute inset-0 z-20"
+                      variants={{
+                        rest: { y: "100%" },
+                        hover: { y: 0 }
+                      }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                    >
+                      <div className="relative w-full h-full">
+                        <img
+                          src="/images/kelvin-full.jpg"
+                          alt="Kelvin Lee"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-primary/40" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                          <h2 className="text-2xl font-black">Kelvin Lee</h2>
+                          <p className="text-sm opacity-90">(Kelvin Cushman)</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
                 <CardContent className="p-6">
                   <p className="text-muted-foreground mb-6">
                     Kelvin began his electrical career as an apprentice more than 30 years ago. He has worked across domestic, commercial, and industrial sectors nationwide, specialising in installations, testing, fault finding and kitchen/bathroom electrics.
@@ -72,41 +136,100 @@ const About = () => {
                     </p>
                   </div>
                 </CardContent>
-              </Card>
+                </Card>
+              </motion.div>
 
               {/* Andy */}
-              <Card className="border-2 border-secondary overflow-hidden">
-                <div className="bg-secondary text-secondary-foreground p-8 text-center">
-                  <div className="w-32 h-32 rounded-full bg-white/20 mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-5xl font-black">A</span>
-                  </div>
-                  <h2 className="text-2xl font-black">Andy Purcell</h2>
-                  <p className="text-sm opacity-90">35+ Years Experience</p>
-                </div>
-                <CardContent className="p-6">
-                  <p className="text-muted-foreground mb-6">
-                    With over 35 years of experience, Andy has worked across the UK on a huge range of electrical systems. Known for precision and reliability, his background includes domestic rewires, testing, fault-finding and renewable energy installation.
-                  </p>
-                  <p className="text-muted-foreground mb-6">
-                    Andy specialises in solar, rewires, consumer units, and domestic upgrades.
-                  </p>
-                  <h3 className="font-bold text-secondary mb-3">Credentials:</h3>
-                  <ul className="space-y-2">
-                    {andyCredentials.map((credential, index) => (
-                      <li key={index} className="flex items-center gap-2 text-foreground">
-                        <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0" />
-                        {credential}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-6 p-4 bg-muted rounded-lg">
-                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
-                      <Sun className="h-4 w-4 text-secondary" />
-                      Specialises in: Solar PV, Rewires, Consumer Units, Domestic Upgrades
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card className="border-2 border-secondary overflow-hidden h-full">
+                  <motion.div
+                    className="relative overflow-hidden"
+                    initial="rest"
+                    whileHover="hover"
+                    animate="rest"
+                  >
+                    {/* Default secondary background with profile */}
+                    <div className="bg-secondary text-secondary-foreground p-8 text-center relative z-10">
+                      <motion.div
+                        className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border-4 border-white/30"
+                        variants={{
+                          rest: { scale: 1 },
+                          hover: { scale: 1.05 }
+                        }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <img
+                          src="/images/andy-profile.jpg"
+                          alt="Andy Purcell"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            target.parentElement!.innerHTML = '<span class="text-5xl font-black flex items-center justify-center h-full bg-white/20">A</span>';
+                          }}
+                        />
+                      </motion.div>
+                      <h2 className="text-2xl font-black">Andy Purcell</h2>
+                      <p className="text-sm opacity-90">35+ Years Experience</p>
+                    </div>
+
+                    {/* Full image wipe-up on hover */}
+                    <motion.div
+                      className="absolute inset-0 z-20"
+                      variants={{
+                        rest: { y: "100%" },
+                        hover: { y: 0 }
+                      }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                    >
+                      <div className="relative w-full h-full">
+                        <img
+                          src="/images/andy-full.jpg"
+                          alt="Andy Purcell"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-secondary/40" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                          <h2 className="text-2xl font-black">Andy Purcell</h2>
+                          <p className="text-sm opacity-90">35+ Years Experience</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground mb-6">
+                      With over 35 years of experience, Andy has worked across the UK on a huge range of electrical systems. Known for precision and reliability, his background includes domestic rewires, testing, fault-finding and renewable energy installation.
                     </p>
-                  </div>
-                </CardContent>
-              </Card>
+                    <p className="text-muted-foreground mb-6">
+                      Andy specialises in solar, rewires, consumer units, and domestic upgrades.
+                    </p>
+                    <h3 className="font-bold text-secondary mb-3">Credentials:</h3>
+                    <ul className="space-y-2">
+                      {andyCredentials.map((credential, index) => (
+                        <li key={index} className="flex items-center gap-2 text-foreground">
+                          <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0" />
+                          {credential}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-6 p-4 bg-muted rounded-lg">
+                      <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <Sun className="h-4 w-4 text-secondary" />
+                        Specialises in: Solar PV, Rewires, Consumer Units, Domestic Upgrades
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -172,13 +295,13 @@ const About = () => {
             <h2 className="text-3xl font-black mb-6">Ready to Work With Us?</h2>
             <p className="text-xl mb-8 opacity-90">Get in touch for a free quote or emergency callout</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="tel:01234567890">
+              <a href="tel:01902943929">
                 <Button size="lg" className="bg-background text-emergency hover:bg-background/90 font-bold text-lg px-8 py-6">
                   <Phone className="mr-2 h-5 w-5" />
                   Call Us Now
                 </Button>
               </a>
-              <a href="https://wa.me/441234567890" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/441902943929" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-6">
                   <MessageCircle className="mr-2 h-5 w-5" />
                   WhatsApp

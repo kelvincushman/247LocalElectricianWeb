@@ -1,151 +1,188 @@
-import { Phone, MessageCircle, Camera, Image } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Phone, MessageCircle, Camera, Loader2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import InteractiveBentoGallery, { MediaItemType } from "@/components/ui/interactive-bento-gallery";
+import Breadcrumbs from "@/components/Breadcrumbs";
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+}
+
+interface GalleryItem {
+  id: string;
+  title: string;
+  description: string;
+  type: 'image' | 'video';
+  url: string;
+  thumbnail_url: string;
+  category_id: string;
+  category_name: string;
+  category_slug: string;
+  span: string;
+  is_featured: boolean;
+}
 
 const Gallery = () => {
-  // Placeholder gallery items - replace with actual images
-  const galleryItems = [
-    {
-      id: 1,
-      title: "Consumer Unit Upgrade",
-      description: "Modern 18-way consumer unit with RCD protection installed in Wolverhampton",
-      category: "Consumer Units",
-    },
-    {
-      id: 2,
-      title: "Kitchen Rewire",
-      description: "Complete kitchen electrical installation including new circuits for appliances",
-      category: "Rewiring",
-    },
-    {
-      id: 3,
-      title: "EV Charger Installation",
-      description: "7kW home EV charging point installed in Bilston",
-      category: "EV Charging",
-    },
-    {
-      id: 4,
-      title: "Bathroom Electrics",
-      description: "IP-rated downlights and extractor fan installation",
-      category: "Bathrooms",
-    },
-    {
-      id: 5,
-      title: "Electric Shower Install",
-      description: "9.5kW electric shower installation with dedicated circuit",
-      category: "Showers",
-    },
-    {
-      id: 6,
-      title: "Outdoor Lighting",
-      description: "Garden lighting installation with weatherproof fittings",
-      category: "Lighting",
-    },
-    {
-      id: 7,
-      title: "Fuse Board Replacement",
-      description: "Old rewirable fuse board upgraded to modern RCBO board",
-      category: "Consumer Units",
-    },
-    {
-      id: 8,
-      title: "Cooker Connection",
-      description: "New electric oven and hob installation with isolator switch",
-      category: "Appliances",
-    },
-    {
-      id: 9,
-      title: "Smoke Alarm Circuit",
-      description: "Interlinked smoke and heat detector installation",
-      category: "Safety",
-    },
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [items, setItems] = useState<GalleryItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
-  const categories = [...new Set(galleryItems.map(item => item.category))];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categoriesRes, itemsRes] = await Promise.all([
+          fetch(`${API_URL}/gallery/categories`),
+          fetch(`${API_URL}/gallery/items${selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''}`),
+        ]);
+
+        if (!categoriesRes.ok || !itemsRes.ok) {
+          throw new Error('Failed to fetch gallery data');
+        }
+
+        const categoriesData = await categoriesRes.json();
+        const itemsData = await itemsRes.json();
+
+        setCategories(Array.isArray(categoriesData) ? categoriesData.filter((c: Category) => c.slug !== 'all-work') : []);
+        setItems(Array.isArray(itemsData) ? itemsData : []);
+        setHasError(false);
+      } catch (error) {
+        console.error('Error fetching gallery:', error);
+        setHasError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedCategory]);
+
+  // Convert database items to InteractiveBentoGallery format
+  const mediaItems: MediaItemType[] = items.map((item, index) => ({
+    id: index + 1,
+    type: item.type,
+    title: item.title,
+    desc: item.description || '',
+    url: item.url,
+    span: item.span || 'md:col-span-1 md:row-span-2',
+    category: item.category_name,
+  }));
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Gallery | Our Electrical Work | 247Electrician Black Country & Birmingham</title>
+        <meta name="description" content="View examples of our electrical work: consumer unit upgrades, rewiring, EV charger installations, lighting and more. Professional results across Black Country & Birmingham." />
+        <link rel="canonical" href="https://247electrician.uk/gallery" />
+      </Helmet>
       <Header />
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-primary text-primary-foreground py-16">
-          <div className="container mx-auto px-4 text-center">
-            <Camera className="h-16 w-16 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-black mb-6">Our Work Gallery</h1>
-            <p className="text-xl max-w-3xl mx-auto opacity-90">
-              Browse examples of our electrical work across the West Midlands. All work completed to BS 7671 standards.
-            </p>
-          </div>
-        </section>
-
-        {/* Categories */}
-        <section className="py-8 bg-muted">
+        <section className="bg-primary text-primary-foreground py-12 md:py-16">
           <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center gap-3">
-              <span className="text-sm font-bold text-muted-foreground mr-2">Categories:</span>
-              {categories.map((category) => (
-                <span
-                  key={category}
-                  className="bg-background text-foreground px-4 py-2 rounded-full text-sm font-semibold hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                >
-                  {category}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Gallery Grid */}
-        <section className="py-16 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {galleryItems.map((item) => (
-                <Card key={item.id} className="border-2 hover:border-primary transition-colors overflow-hidden group cursor-pointer">
-                  <div className="aspect-video bg-muted flex items-center justify-center relative overflow-hidden">
-                    <Image className="h-16 w-16 text-muted-foreground/50" />
-                    <div className="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="text-primary-foreground font-bold">View Details</span>
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <span className="text-xs font-bold text-primary uppercase tracking-wide">
-                      {item.category}
-                    </span>
-                    <h3 className="font-bold text-foreground mt-1">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Coming Soon Note */}
-            <div className="text-center mt-12 p-8 bg-muted rounded-lg max-w-2xl mx-auto">
-              <Camera className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-foreground mb-2">More Photos Coming Soon</h3>
-              <p className="text-muted-foreground">
-                We're constantly adding new examples of our work. Check back soon for more photos of completed projects across the West Midlands.
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Gallery" },
+              ]}
+              className="mb-4"
+            />
+            <div className="text-center">
+              <Camera className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-4 md:mb-6" />
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4 md:mb-6">Our Work Gallery</h1>
+              <p className="text-lg md:text-xl max-w-3xl mx-auto opacity-90">
+                Browse examples of our electrical work across the West Midlands. All work completed to BS 7671 standards.
               </p>
             </div>
           </div>
         </section>
 
+        {/* Categories Filter */}
+        <section className="py-6 bg-muted border-b">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3">
+              <span className="text-sm font-bold text-muted-foreground mr-2 hidden sm:inline">Filter:</span>
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className={`px-3 md:px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  selectedCategory === 'all'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-background text-foreground hover:bg-primary/10'
+                }`}
+              >
+                All Work
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.slug)}
+                  className={`px-3 md:px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                    selectedCategory === category.slug
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-background text-foreground hover:bg-primary/10'
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Gallery Content */}
+        <section className="py-8 md:py-12 bg-background">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          ) : hasError || items.length === 0 ? (
+            <div className="container mx-auto px-4">
+              <div className="text-center py-16 bg-muted/50 rounded-xl max-w-2xl mx-auto">
+                <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
+                <h2 className="text-2xl font-bold text-foreground mb-4">
+                  {hasError ? 'Gallery Loading...' : 'Gallery Coming Soon'}
+                </h2>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  {hasError
+                    ? 'We\'re updating our gallery with new photos. Please check back shortly.'
+                    : 'We\'re currently adding photos of our work. Check back soon for examples of completed projects.'
+                  }
+                </p>
+              </div>
+            </div>
+          ) : (
+            <InteractiveBentoGallery
+              mediaItems={mediaItems}
+              title=""
+              description=""
+            />
+          )}
+        </section>
+
         {/* CTA Section */}
-        <section className="py-16 bg-emergency text-emergency-foreground">
+        <section className="py-12 md:py-16 bg-emergency text-emergency-foreground">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-black mb-6">Want Similar Work Done?</h2>
-            <p className="text-xl mb-8 opacity-90">Contact us for a free quote on your electrical project</p>
+            <h2 className="text-2xl md:text-3xl font-black mb-4 md:mb-6">Want Similar Work Done?</h2>
+            <p className="text-lg md:text-xl mb-6 md:mb-8 opacity-90">Contact us for a free quote on your electrical project</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="tel:01234567890">
-                <Button size="lg" className="bg-background text-emergency hover:bg-background/90 font-bold text-lg px-8 py-6">
+              <a href="tel:01902943929">
+                <Button size="lg" className="w-full sm:w-auto bg-background text-emergency hover:bg-background/90 font-bold text-lg px-8 py-6">
                   <Phone className="mr-2 h-5 w-5" />
                   Call Us Now
                 </Button>
               </a>
-              <a href="https://wa.me/441234567890" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-6">
+              <a href="https://wa.me/441902943929" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-6">
                   <MessageCircle className="mr-2 h-5 w-5" />
                   WhatsApp
                 </Button>

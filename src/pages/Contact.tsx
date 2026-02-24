@@ -1,4 +1,5 @@
 import { Phone, Mail, MapPin, Clock, MessageCircle, Zap, Bot } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,11 @@ import { Link } from "react-router-dom";
 const Contact = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Contact Us | 247Electrician | Black Country & Birmingham Electrician</title>
+        <meta name="description" content="Contact 247Electrician for 24/7 emergency callouts. Call us directly - no call centres. Serving Black Country, Birmingham, Walsall & Cannock. Free quotes available." />
+        <link rel="canonical" href="https://247electrician.uk/contact" />
+      </Helmet>
       <Header />
 
       <main className="flex-grow">
@@ -61,7 +67,7 @@ const Contact = () => {
                   <p className="text-muted-foreground text-sm mb-4">
                     Quick questions? Send us a message and get a fast response.
                   </p>
-                  <a href="https://wa.me/441234567890" target="_blank" rel="noopener noreferrer">
+                  <a href="https://wa.me/441902943929" target="_blank" rel="noopener noreferrer">
                     <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold">
                       <MessageCircle className="mr-2 h-4 w-4" />
                       WhatsApp Us
@@ -80,7 +86,7 @@ const Contact = () => {
                   <p className="text-muted-foreground text-sm mb-4">
                     Speak directly to Kelvin or Andy. Emergency callouts available.
                   </p>
-                  <a href="tel:01234567890">
+                  <a href="tel:01902943929">
                     <Button className="w-full bg-emergency hover:bg-emergency/90 text-emergency-foreground font-bold">
                       <Phone className="mr-2 h-4 w-4" />
                       Call Now
@@ -110,8 +116,8 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-lg mb-2 text-foreground">Phone (24/7 Emergency)</h3>
-                        <a href="tel:01234567890" className="text-2xl font-black text-emergency hover:text-emergency/80">
-                          01234 567 890
+                        <a href="tel:01902943929" className="text-2xl font-black text-emergency hover:text-emergency/80">
+                          01902 943 929
                         </a>
                         <p className="text-sm text-muted-foreground mt-1">
                           Available 24 hours a day, 7 days a week
@@ -129,7 +135,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-lg mb-2 text-foreground">WhatsApp</h3>
-                        <a href="https://wa.me/441234567890" target="_blank" rel="noopener noreferrer" className="text-xl font-bold text-green-600 hover:text-green-700">
+                        <a href="https://wa.me/441902943929" target="_blank" rel="noopener noreferrer" className="text-xl font-bold text-green-600 hover:text-green-700">
                           Message Us
                         </a>
                         <p className="text-sm text-muted-foreground mt-1">
@@ -252,8 +258,8 @@ const Contact = () => {
 
                       <p className="text-sm text-muted-foreground text-center">
                         For emergencies, please call us directly on{" "}
-                        <a href="tel:01234567890" className="text-emergency font-bold hover:underline">
-                          01234 567 890
+                        <a href="tel:01902943929" className="text-emergency font-bold hover:underline">
+                          01902 943 929
                         </a>
                       </p>
                     </form>

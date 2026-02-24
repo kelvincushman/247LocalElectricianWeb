@@ -1,22 +1,82 @@
-import { useParams, Link, Navigate } from "react-router-dom";
-import { Calendar, Tag, ArrowLeft, Phone, MessageCircle, Share2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { Calendar, Tag, User, ArrowLeft, Phone, MessageCircle, Share2, Loader2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getBlogPostBySlug, getRecentPosts } from "@/data/blogPosts";
-import ReactMarkdown from "react-markdown";
+import Breadcrumbs from "@/components/Breadcrumbs";
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface BlogPostType {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  featured_image: string;
+  category_id: string;
+  category_name: string;
+  category_slug: string;
+  author_name: string;
+  status: string;
+  is_featured: boolean;
+  published_at: string;
+  created_at: string;
+}
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const post = slug ? getBlogPostBySlug(slug) : undefined;
-  const recentPosts = getRecentPosts(3).filter(p => p.slug !== slug);
+  const [post, setPost] = useState<BlogPostType | null>(null);
+  const [recentPosts, setRecentPosts] = useState<BlogPostType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!post) {
-    return <Navigate to="/blog" replace />;
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch post and recent posts in parallel
+        const [postRes, recentRes] = await Promise.all([
+          fetch(`${API_URL}/blog/posts/${slug}`),
+          fetch(`${API_URL}/blog/posts?status=published`),
+        ]);
+
+        if (!postRes.ok) {
+          if (postRes.status === 404) {
+            setNotFound(true);
+          }
+          throw new Error('Post not found');
+        }
+
+        const postData = await postRes.json();
+        setPost(postData);
+
+        if (recentRes.ok) {
+          const recentData = await recentRes.json();
+          const filtered = Array.isArray(recentData)
+            ? recentData.filter((p: BlogPostType) => p.slug !== slug).slice(0, 3)
+            : [];
+          setRecentPosts(filtered);
+        }
+      } catch (error) {
+        console.error('Error fetching post:', error);
+        setNotFound(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (slug) {
+      setIsLoading(true);
+      setNotFound(false);
+      fetchData();
+    }
+  }, [slug]);
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'long',
@@ -24,30 +84,84 @@ const BlogPost = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (notFound || !post) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Helmet>
+          <title>Post Not Found | 247Electrician Blog</title>
+        </Helmet>
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center px-4">
+            <h1 className="text-4xl font-black text-foreground mb-4">Post Not Found</h1>
+            <p className="text-muted-foreground mb-8">The blog post you're looking for doesn't exist or has been removed.</p>
+            <Link to="/blog">
+              <Button>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Blog
+              </Button>
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>{post.title} | 247Electrician Blog</title>
+        <meta name="description" content={post.excerpt || `Read ${post.title} on 247Electrician blog.`} />
+        <link rel="canonical" href={`https://247electrician.uk/blog/${post.slug}`} />
+        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+      </Helmet>
       <Header />
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-primary text-primary-foreground py-12">
+        <section className="bg-primary text-primary-foreground py-8 md:py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <Link to="/blog" className="inline-flex items-center gap-2 text-sm opacity-80 hover:opacity-100 mb-6">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Blog
-              </Link>
-              <div className="flex items-center gap-4 text-sm opacity-80 mb-4">
-                <span className="flex items-center gap-1">
-                  <Tag className="h-4 w-4" />
-                  {post.category}
-                </span>
+              <Breadcrumbs
+                items={[
+                  { label: "Home", href: "/" },
+                  { label: "Blog", href: "/blog" },
+                  { label: post.title },
+                ]}
+                className="mb-4"
+              />
+              <div className="flex flex-wrap items-center gap-4 text-sm opacity-80 mb-4">
+                {post.category_name && (
+                  <span className="flex items-center gap-1">
+                    <Tag className="h-4 w-4" />
+                    {post.category_name}
+                  </span>
+                )}
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {formatDate(post.date)}
+                  {formatDate(post.published_at || post.created_at)}
                 </span>
+                {post.author_name && (
+                  <span className="flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    {post.author_name}
+                  </span>
+                )}
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight">
                 {post.title}
               </h1>
             </div>
@@ -55,69 +169,66 @@ const BlogPost = () => {
         </section>
 
         {/* Content */}
-        <section className="py-12 bg-background">
+        <section className="py-8 md:py-12 bg-background">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="grid lg:grid-cols-3 gap-12">
+              <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
                 {/* Main Content */}
                 <div className="lg:col-span-2">
-                  <article className="prose prose-lg max-w-none prose-headings:text-foreground prose-headings:font-black prose-p:text-muted-foreground prose-strong:text-foreground prose-li:text-muted-foreground">
-                    <div className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-                      {post.content.split('\n\n').map((paragraph, index) => {
-                        if (paragraph.startsWith('## ')) {
-                          return (
-                            <h2 key={index} className="text-2xl font-black text-foreground mt-8 mb-4">
-                              {paragraph.replace('## ', '')}
-                            </h2>
-                          );
-                        }
-                        if (paragraph.startsWith('- ')) {
-                          const items = paragraph.split('\n').filter(line => line.startsWith('- '));
-                          return (
-                            <ul key={index} className="list-disc pl-6 space-y-2 my-4">
-                              {items.map((item, i) => (
-                                <li key={i}>{item.replace('- ', '')}</li>
-                              ))}
-                            </ul>
-                          );
-                        }
-                        if (paragraph.match(/^\d+\./)) {
-                          const items = paragraph.split('\n').filter(line => line.match(/^\d+\./));
-                          return (
-                            <ol key={index} className="list-decimal pl-6 space-y-2 my-4">
-                              {items.map((item, i) => (
-                                <li key={i}>{item.replace(/^\d+\.\s*/, '')}</li>
-                              ))}
-                            </ol>
-                          );
-                        }
-                        if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
-                          return (
-                            <p key={index} className="font-bold text-foreground my-4 p-4 bg-muted rounded-lg">
-                              {paragraph.replace(/\*\*/g, '')}
-                            </p>
-                          );
-                        }
-                        return (
-                          <p key={index} className="my-4">
-                            {paragraph.split('**').map((part, i) =>
-                              i % 2 === 1 ? <strong key={i} className="text-foreground">{part}</strong> : part
-                            )}
-                          </p>
-                        );
-                      })}
+                  {/* Featured Image */}
+                  {post.featured_image && (
+                    <div className="aspect-video rounded-xl overflow-hidden mb-8">
+                      <img
+                        src={post.featured_image}
+                        alt={post.title}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </article>
+                  )}
+
+                  {/* Excerpt */}
+                  {post.excerpt && (
+                    <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed font-medium">
+                      {post.excerpt}
+                    </p>
+                  )}
+
+                  {/* Content */}
+                  <article
+                    className="prose prose-lg max-w-none prose-headings:text-foreground prose-headings:font-black prose-p:text-muted-foreground prose-strong:text-foreground prose-li:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:py-1 prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
+                    dangerouslySetInnerHTML={{ __html: post.content || '' }}
+                  />
 
                   {/* Share */}
                   <div className="mt-12 pt-8 border-t">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                       <span className="font-bold text-foreground">Share this article:</span>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (navigator.share) {
+                            navigator.share({
+                              title: post.title,
+                              url: window.location.href,
+                            });
+                          }
+                        }}
+                      >
                         <Share2 className="h-4 w-4 mr-2" />
                         Share
                       </Button>
                     </div>
+                  </div>
+
+                  {/* Back Link */}
+                  <div className="mt-8">
+                    <Link to="/blog">
+                      <Button variant="outline" className="font-bold">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Blog
+                      </Button>
+                    </Link>
                   </div>
                 </div>
 
@@ -131,13 +242,13 @@ const BlogPost = () => {
                         Our qualified electricians are ready to help with any electrical issue.
                       </p>
                       <div className="space-y-3">
-                        <a href="tel:01234567890" className="block">
+                        <a href="tel:01902943929" className="block">
                           <Button className="w-full bg-emergency hover:bg-emergency/90 font-bold">
                             <Phone className="mr-2 h-4 w-4" />
                             Call Us
                           </Button>
                         </a>
-                        <a href="https://wa.me/441234567890" target="_blank" rel="noopener noreferrer" className="block">
+                        <a href="https://wa.me/441902943929" target="_blank" rel="noopener noreferrer" className="block">
                           <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold">
                             <MessageCircle className="mr-2 h-4 w-4" />
                             WhatsApp
@@ -160,7 +271,7 @@ const BlogPost = () => {
                                   {recentPost.title}
                                 </h4>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  {formatDate(recentPost.date)}
+                                  {formatDate(recentPost.published_at || recentPost.created_at)}
                                 </p>
                               </CardContent>
                             </Card>
@@ -179,16 +290,16 @@ const BlogPost = () => {
         <section className="py-12 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-2xl font-black mb-4">Have Questions About Your Electrics?</h2>
-            <p className="text-lg mb-6 opacity-90">Get expert advice from Kelvin & Andy</p>
+            <p className="text-lg mb-6 opacity-90">Get expert advice from our qualified electricians</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="tel:01234567890">
-                <Button size="lg" className="bg-background text-primary hover:bg-background/90 font-bold">
+              <a href="tel:01902943929">
+                <Button size="lg" className="w-full sm:w-auto bg-background text-primary hover:bg-background/90 font-bold">
                   <Phone className="mr-2 h-5 w-5" />
                   Call Us
                 </Button>
               </a>
               <Link to="/contact">
-                <Button size="lg" variant="outline" className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 font-bold">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent border-2 border-white text-white hover:bg-white/10 font-bold">
                   Request Callback
                 </Button>
               </Link>

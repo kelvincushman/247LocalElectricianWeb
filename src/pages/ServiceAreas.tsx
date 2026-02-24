@@ -1,15 +1,40 @@
 import { MapPin, Clock, Phone, MessageCircle } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CoverageMap from "@/components/CoverageMap";
+import { Link } from "react-router-dom";
+import { areas } from "@/data/areas";
+import "leaflet/dist/leaflet.css";
 
 const ServiceAreas = () => {
-  const primaryAreas = [
-    "Bilston", "Wolverhampton", "Wednesbury", "Willenhall", "Walsall", 
-    "West Bromwich", "Oldbury", "Tipton", "Dudley", "Stourbridge", 
-    "Halesowen", "Great Barr", "Birmingham", "Cannock", "Lichfield", "Telford"
+  // Primary areas with links
+  const primaryAreaLinks = [
+    { name: "Bilston", slug: "bilston" },
+    { name: "Wolverhampton", slug: "wolverhampton" },
+    { name: "Wednesbury", slug: "wednesbury" },
+    { name: "Willenhall", slug: "willenhall" },
+    { name: "Walsall", slug: "walsall" },
+    { name: "West Bromwich", slug: "west-bromwich" },
+    { name: "Oldbury", slug: "oldbury" },
+    { name: "Tipton", slug: "tipton" },
+    { name: "Dudley", slug: "dudley" },
+    { name: "Stourbridge", slug: "stourbridge" },
+    { name: "Halesowen", slug: "halesowen" },
+    { name: "Great Barr", slug: "great-barr" },
+    { name: "Birmingham", slug: "birmingham" },
+    { name: "Cannock", slug: "cannock" },
+    { name: "Lichfield", slug: "lichfield" },
+    { name: "Telford", slug: "telford" },
   ];
+
+  // Helper to get area slug if it exists
+  const getAreaSlug = (areaName: string): string | null => {
+    const area = areas.find(a => a.name.toLowerCase() === areaName.toLowerCase());
+    return area?.slug || null;
+  };
 
   const detailedAreas = [
     {
@@ -40,18 +65,23 @@ const ServiceAreas = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Service Areas | Electrician Black Country, Birmingham, Walsall & Cannock</title>
+        <meta name="description" content="Local electrician covering Black Country, Birmingham, Walsall, Cannock, Dudley, Wolverhampton & surrounding areas. 30-90 minute response. Find your local electrician." />
+        <link rel="canonical" href="https://247electrician.uk/service-areas" />
+      </Helmet>
       <Header />
-      
+
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-16">
           <div className="container mx-auto px-4 text-center">
             <MapPin className="h-16 w-16 mx-auto mb-6" />
             <h1 className="text-5xl md:text-6xl font-black mb-6">
-              Local Electrician Covering Bilston & the West Midlands
+              Electrician Covering Black Country, Birmingham Central & North, Walsall & Cannock
             </h1>
             <p className="text-xl md:text-2xl max-w-4xl mx-auto font-semibold">
-              Fast, reliable electrical services within a 15-mile radius of our Bilston base
+              Fast, reliable electrical services across the West Midlands
             </p>
           </div>
         </section>
@@ -60,8 +90,8 @@ const ServiceAreas = () => {
         <section className="py-16 bg-background">
           <div className="container mx-auto px-4 max-w-4xl">
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              As a trusted local electrician based in Bilston, West Midlands, <span className="font-bold text-foreground">247LocalElectrician</span> (operated by ANP Electrical Ltd) 
-              proudly provides reliable electrical services across a 15-mile radius. Whether you need emergency callouts, fault finding, rewiring, 
+              As a trusted local electrician based in Bilston, West Midlands, <span className="font-bold text-foreground">247LocalElectrician</span> (operated by ANP Electrical Ltd)
+              proudly provides reliable electrical services across a 15-mile radius. Whether you need emergency callouts, fault finding, rewiring,
               EV charging, or EICR certificates, we're close by and ready to help.
             </p>
             <div className="flex items-center gap-3 text-primary font-bold text-xl">
@@ -71,17 +101,46 @@ const ServiceAreas = () => {
           </div>
         </section>
 
-        {/* Primary Coverage */}
+        {/* Interactive Coverage Map */}
         <section className="py-16 bg-muted">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-black text-center mb-4 text-foreground">
+              Our Coverage Area
+            </h2>
+            <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Click on any marker to see coverage details. The red circle shows our Bilston headquarters with maximum coverage radius.
+            </p>
+            <div className="max-w-6xl mx-auto">
+              <CoverageMap />
+            </div>
+            <div className="flex justify-center gap-8 mt-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-red-600 opacity-60"></div>
+                <span className="text-muted-foreground">Headquarters (Bilston)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-primary opacity-40"></div>
+                <span className="text-muted-foreground">Coverage Areas</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Primary Coverage */}
+        <section className="py-16 bg-background">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-black text-center mb-12 text-foreground">
               Primary Coverage - Towns & Cities
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 max-w-6xl mx-auto">
-              {primaryAreas.map((area, index) => (
-                <div key={index} className="bg-background border-2 border-primary rounded-lg p-4 text-center hover:bg-primary hover:text-primary-foreground transition-all font-bold">
-                  {area}
-                </div>
+              {primaryAreaLinks.map((area, index) => (
+                <Link
+                  key={index}
+                  to={`/areas/${area.slug}`}
+                  className="bg-background border-2 border-primary rounded-lg p-4 text-center hover:bg-primary hover:text-primary-foreground transition-all font-bold"
+                >
+                  {area.name}
+                </Link>
               ))}
             </div>
           </div>
@@ -99,11 +158,25 @@ const ServiceAreas = () => {
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold mb-4 text-primary">{section.region}</h3>
                     <div className="flex flex-wrap gap-2">
-                      {section.areas.map((area, areaIndex) => (
-                        <span key={areaIndex} className="bg-muted text-foreground px-3 py-1 rounded-full text-sm font-semibold">
-                          {area}
-                        </span>
-                      ))}
+                      {section.areas.map((area, areaIndex) => {
+                        const slug = getAreaSlug(area);
+                        if (slug) {
+                          return (
+                            <Link
+                              key={areaIndex}
+                              to={`/areas/${slug}`}
+                              className="bg-muted hover:bg-primary hover:text-primary-foreground text-foreground px-3 py-1 rounded-full text-sm font-semibold transition-colors"
+                            >
+                              {area}
+                            </Link>
+                          );
+                        }
+                        return (
+                          <span key={areaIndex} className="bg-muted text-foreground px-3 py-1 rounded-full text-sm font-semibold">
+                            {area}
+                          </span>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -138,13 +211,13 @@ const ServiceAreas = () => {
               We serve properties within a 15-mile radius of Bilston. Give us a call and we'll confirm our response time to your location.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="tel:01234567890">
+              <a href="tel:01902943929">
                 <Button size="lg" className="bg-emergency hover:bg-emergency/90 text-emergency-foreground text-xl px-8 py-6 font-bold">
                   <Phone className="mr-2 h-6 w-6" />
                   Call to Check
                 </Button>
               </a>
-              <a href="https://wa.me/441234567890?text=Hi%2C%20do%20you%20cover%20my%20area%3F" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/441902943929?text=Hi%2C%20do%20you%20cover%20my%20area%3F" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white text-xl px-8 py-6 font-bold">
                   <MessageCircle className="mr-2 h-6 w-6" />
                   Ask on WhatsApp
@@ -198,9 +271,9 @@ const ServiceAreas = () => {
             <h2 className="text-4xl md:text-5xl font-black mb-6">
               Find Your Local Electrician - Call Today!
             </h2>
-            <a href="tel:01234567890" className="inline-block">
+            <a href="tel:01902943929" className="inline-block">
               <p className="text-6xl md:text-7xl font-black mb-6 hover:scale-105 transition-transform">
-                01234 567 890
+                01902 943 929
               </p>
             </a>
             <p className="text-2xl font-bold">

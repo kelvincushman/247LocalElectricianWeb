@@ -1,4 +1,5 @@
 import { Phone, AlertTriangle, Clock, Shield, Zap } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
@@ -27,6 +28,11 @@ const Emergency = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>24/7 Emergency Electrician | Black Country & Birmingham | 247Electrician</title>
+        <meta name="description" content="24/7 emergency electrician serving Black Country, Birmingham, Walsall & Cannock. 30-90 minute response. Power failures, sparking, tripping fuses. Call now!" />
+        <link rel="canonical" href="https://247electrician.uk/emergency" />
+      </Helmet>
       <Header />
       
       <main className="flex-grow">
@@ -40,9 +46,9 @@ const Emergency = () => {
             <p className="text-2xl md:text-3xl mb-8 font-semibold">
               Available Right Now Across the West Midlands
             </p>
-            <a href="tel:01234567890" className="inline-block">
+            <a href="tel:01902943929" className="inline-block">
               <p className="text-6xl md:text-7xl font-black mb-8 hover:scale-105 transition-transform">
-                01234 567 890
+                01902 943 929
               </p>
             </a>
             <div className="flex items-center justify-center gap-2 text-xl font-bold">
@@ -69,7 +75,7 @@ const Emergency = () => {
               ))}
             </div>
             <div className="text-center mt-12">
-              <a href="tel:01234567890">
+              <a href="tel:01902943929">
                 <Button size="lg" className="bg-emergency hover:bg-emergency/90 text-emergency-foreground text-xl px-8 py-6 font-bold">
                   <Phone className="mr-2 h-6 w-6" />
                   CALL EMERGENCY LINE NOW
@@ -234,9 +240,9 @@ const Emergency = () => {
             <h2 className="text-4xl md:text-5xl font-black mb-6">
               Electrical Emergency? Call Now
             </h2>
-            <a href="tel:01234567890" className="inline-block">
+            <a href="tel:01902943929" className="inline-block">
               <p className="text-6xl md:text-7xl font-black mb-8 hover:scale-105 transition-transform">
-                01234 567 890
+                01902 943 929
               </p>
             </a>
             <p className="text-2xl font-bold">
