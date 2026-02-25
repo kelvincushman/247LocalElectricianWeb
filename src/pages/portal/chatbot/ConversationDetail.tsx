@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { useParams, Link } from 'react-router-dom';
 import { usePortalAuth } from '@/contexts/PortalAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -108,7 +109,7 @@ export default function ConversationDetail() {
     formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     formatted = formatted.replace(/__(.*?)__/g, '<strong>$1</strong>');
     formatted = formatted.replace(/\n/g, '<br />');
-    return formatted;
+    return DOMPurify.sanitize(formatted, { ALLOWED_TAGS: ['strong', 'br', 'em', 'b', 'i'] });
   };
 
   if (!isStaff) {

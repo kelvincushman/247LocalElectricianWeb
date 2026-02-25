@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const cookie = require('cookie');
 const OpenClawClient = require('./openclawClient');
 const SessionSync = require('./sessionSync');
 const createGatewayRoutes = require('./routes');
@@ -19,9 +20,41 @@ function initGatewayRelay(server, app, pool, authMiddleware) {
   const wss = new WebSocket.Server({ noServer: true });
   const portalClients = new Set();
 
-  // Handle HTTP upgrade for /ws/gateway
-  server.on('upgrade', (request, socket, head) => {
+  // Validate session from cookie for WebSocket auth
+  async function validateWsSession(request) {
+    try {
+      const cookies = cookie.parse(request.headers.cookie || '');
+      const sessionCookie = cookies['connect.sid'];
+      if (!sessionCookie) return false;
+
+      // Extract session ID from signed cookie (format: s:<sid>.<signature>)
+      const rawSid = sessionCookie.startsWith('s:')
+        ? sessionCookie.slice(2).split('.')[0]
+        : sessionCookie;
+
+      const { rows } = await pool.query(
+        'SELECT sess FROM sessions WHERE sid = $1 AND expire > NOW()',
+        [rawSid]
+      );
+      if (rows.length === 0) return false;
+
+      const sess = typeof rows[0].sess === 'string' ? JSON.parse(rows[0].sess) : rows[0].sess;
+      return sess?.passport?.user ? true : false;
+    } catch (err) {
+      console.error('[Gateway WS] Session validation error:', err.message);
+      return false;
+    }
+  }
+
+  // Handle HTTP upgrade for /ws/gateway with authentication
+  server.on('upgrade', async (request, socket, head) => {
     if (request.url === '/ws/gateway') {
+      const isValid = await validateWsSession(request);
+      if (!isValid) {
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+        return;
+      }
       wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit('connection', ws, request);
       });

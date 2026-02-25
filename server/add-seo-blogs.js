@@ -5,7 +5,7 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5438,
   database: process.env.DB_NAME || 'electrician_db',
   user: process.env.DB_USER || 'electrician',
-  password: process.env.DB_PASSWORD || 'Prawowi1976',
+  password: process.env.DB_PASSWORD || '',
 });
 
 // Category IDs from the database

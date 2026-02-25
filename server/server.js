@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
@@ -17,6 +18,12 @@ const Stripe = require('stripe');
 const twilio = require('twilio');
 const cron = require('node-cron');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// JWT secret - MUST be set in production via environment variable
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex');
 
 // Stripe Configuration
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
@@ -50,17 +57,56 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5438,
   database: process.env.DB_NAME || 'electrician_db',
   user: process.env.DB_USER || 'electrician',
-  password: process.env.DB_PASSWORD || 'Prawowi1976',
+  password: process.env.DB_PASSWORD || '',
 });
 
 // Trust proxy (cloudflared/nginx) for secure cookies
 app.set('trust proxy', 1);
 
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Managed by static server / CDN
+  crossOriginEmbedderPolicy: false, // Allow embedded resources
+}));
+
 // Middleware
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://247electrician.uk', 'https://www.247electrician.uk']
+  : ['http://localhost:8080', 'http://localhost:8084', 'https://247electrician.uk', 'https://www.247electrician.uk'];
+
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:8084', 'https://247electrician.uk', 'https://www.247electrician.uk'],
+  origin: allowedOrigins,
   credentials: true
 }));
+
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // limit each IP to 200 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 login attempts per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts, please try again later' },
+});
+
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20, // limit each IP to 20 chat messages per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many messages, please slow down' },
+});
+
+app.use('/api/', apiLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/chatbot/', chatLimiter);
 
 // Stripe Webhook - MUST be before express.json() to get raw body
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -181,7 +227,7 @@ app.use(session({
     tableName: 'sessions',
     createTableIfMissing: true
   }),
-  secret: process.env.SESSION_SECRET || 'your-super-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex'),
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -323,7 +369,7 @@ const authenticateToken = async (req, res, next) => {
     return next();
   }
 
-  // Fall back to token-based auth
+  // Fall back to JWT-based auth
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -332,14 +378,15 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [token]);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await pool.query('SELECT * FROM users WHERE id = $1 AND is_active = true', [decoded.userId]);
     if (user.rows.length === 0) {
       return res.status(403).json({ error: 'Invalid token' });
     }
     req.user = user.rows[0];
     next();
   } catch (error) {
-    return res.status(403).json({ error: 'Invalid token' });
+    return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };
 
@@ -369,8 +416,15 @@ app.post('/api/auth/login', (req, res, next) => {
         console.error('Session error:', err);
         return res.status(500).json({ error: 'Server error' });
       }
+      // Generate JWT for legacy admin API access
+      const accessToken = jwt.sign(
+        { userId: user.id, email: user.email, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
       res.json({
         success: true,
+        token: accessToken,
         user: {
           id: user.id,
           email: user.email,

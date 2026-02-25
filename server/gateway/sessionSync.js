@@ -100,9 +100,12 @@ class SessionSync {
 
     const { rows } = await this.pool.query(query, params);
 
-    const { rows: [{ count }] } = await this.pool.query(
-      `SELECT COUNT(*) FROM gateway_sessions WHERE 1=1${status ? ` AND status = '${status}'` : ''}${channel ? ` AND channel_type = '${channel}'` : ''}`
-    );
+    let countQuery = 'SELECT COUNT(*) FROM gateway_sessions WHERE 1=1';
+    const countParams = [];
+    let countIdx = 1;
+    if (status) { countQuery += ` AND status = $${countIdx++}`; countParams.push(status); }
+    if (channel) { countQuery += ` AND channel_type = $${countIdx++}`; countParams.push(channel); }
+    const { rows: [{ count }] } = await this.pool.query(countQuery, countParams);
 
     return { sessions: rows, total: parseInt(count), page, limit };
   }

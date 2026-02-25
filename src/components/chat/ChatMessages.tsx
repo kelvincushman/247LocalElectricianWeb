@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Loader2, Phone, AlertTriangle } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 export interface ChatMessage {
   id: string;
@@ -62,7 +63,11 @@ export default function ChatMessages({ messages, isTyping, greeting }: ChatMessa
       '<a href="tel:$1" class="text-primary font-bold hover:underline">$1</a>'
     );
 
-    return formatted;
+    return DOMPurify.sanitize(formatted, {
+      ALLOWED_TAGS: ['strong', 'br', 'em', 'b', 'i', 'a'],
+      ALLOWED_ATTR: ['href', 'class'],
+      ALLOWED_URI_REGEXP: /^tel:/i,
+    });
   };
 
   return (

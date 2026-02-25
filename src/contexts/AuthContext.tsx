@@ -67,10 +67,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        // Use email as token (simple auth - use JWT in production)
-        localStorage.setItem('auth_token', email);
-        setToken(email);
+      if (response.ok && data.success && data.token) {
+        localStorage.setItem('auth_token', data.token);
+        setToken(data.token);
         setUser(data.user);
         return { success: true };
       } else {

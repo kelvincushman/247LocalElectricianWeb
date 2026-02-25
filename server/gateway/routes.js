@@ -150,7 +150,10 @@ function createGatewayRoutes(pool, sessionSync, openclawClient) {
       query += ` ORDER BY gl.created_at DESC LIMIT $${idx++} OFFSET $${idx}`;
       params.push(parseInt(limit), (parseInt(page) - 1) * parseInt(limit));
       const { rows } = await pool.query(query, params);
-      const { rows: [{ count }] } = await pool.query(`SELECT COUNT(*) FROM gateway_leads${status ? ` WHERE status = '${status}'` : ''}`);
+      let countQuery = 'SELECT COUNT(*) FROM gateway_leads';
+      const countParams = [];
+      if (status) { countQuery += ' WHERE status = $1'; countParams.push(status); }
+      const { rows: [{ count }] } = await pool.query(countQuery, countParams);
       res.json({ leads: rows, total: parseInt(count), page: parseInt(page) });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -161,6 +164,10 @@ function createGatewayRoutes(pool, sessionSync, openclawClient) {
   router.put('/leads/:id', async (req, res) => {
     try {
       const { status } = req.body;
+      const validStatuses = ['new', 'contacted', 'qualified', 'converted', 'lost', 'archived'];
+      if (!status || !validStatuses.includes(status)) {
+        return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+      }
       await pool.query('UPDATE gateway_leads SET status = $1, updated_at = NOW() WHERE id = $2', [status, req.params.id]);
       res.json({ success: true });
     } catch (err) {
@@ -171,20 +178,19 @@ function createGatewayRoutes(pool, sessionSync, openclawClient) {
   // Analytics
   router.get('/analytics', async (req, res) => {
     try {
-      const { days = 30 } = req.query;
-      const { rows } = await pool.query(`
-        SELECT * FROM gateway_analytics
-        WHERE date >= NOW() - INTERVAL '${parseInt(days)} days'
-        ORDER BY date DESC
-      `);
+      const days = Math.max(1, Math.min(365, parseInt(req.query.days) || 30));
+      const { rows } = await pool.query(
+        `SELECT * FROM gateway_analytics WHERE date >= NOW() - $1::interval ORDER BY date DESC`,
+        [`${days} days`]
+      );
 
       // Also get live counts
       const { rows: [live] } = await pool.query(`
         SELECT
-          (SELECT COUNT(*) FROM gateway_sessions WHERE created_at >= NOW() - INTERVAL '${parseInt(days)} days') AS total_sessions,
-          (SELECT COUNT(*) FROM gateway_messages WHERE created_at >= NOW() - INTERVAL '${parseInt(days)} days') AS total_messages,
-          (SELECT COUNT(*) FROM gateway_leads WHERE created_at >= NOW() - INTERVAL '${parseInt(days)} days') AS total_leads
-      `);
+          (SELECT COUNT(*) FROM gateway_sessions WHERE created_at >= NOW() - $1::interval) AS total_sessions,
+          (SELECT COUNT(*) FROM gateway_messages WHERE created_at >= NOW() - $1::interval) AS total_messages,
+          (SELECT COUNT(*) FROM gateway_leads WHERE created_at >= NOW() - $1::interval) AS total_leads
+      `, [`${days} days`]);
 
       res.json({ analytics: rows, live_stats: live });
     } catch (err) {
@@ -225,6 +231,13 @@ function createGatewayRoutes(pool, sessionSync, openclawClient) {
   router.post('/outbound', async (req, res) => {
     try {
       const { recipient_id, channel_type, message_type, content, scheduled_for } = req.body;
+      if (!recipient_id || !channel_type || !message_type || !content) {
+        return res.status(400).json({ error: 'recipient_id, channel_type, message_type, and content are required' });
+      }
+      const validChannels = ['whatsapp', 'sms', 'email', 'webchat'];
+      if (!validChannels.includes(channel_type)) {
+        return res.status(400).json({ error: `Invalid channel_type. Must be one of: ${validChannels.join(', ')}` });
+      }
       const { rows: [msg] } = await pool.query(`
         INSERT INTO gateway_outbound_queue (recipient_id, channel_type, message_type, content, scheduled_for)
         VALUES ($1, $2, $3, $4, $5) RETURNING id
@@ -286,19 +299,19 @@ function createGatewayRoutes(pool, sessionSync, openclawClient) {
   // Expiring certificates
   router.get('/certificates/expiring', async (req, res) => {
     try {
-      const { months = 3 } = req.query;
+      const months = Math.max(1, Math.min(24, parseInt(req.query.months) || 3));
       const { rows } = await pool.query(`
-        SELECT c.id, c.cert_type, c.cert_number, c.next_inspection_date,
+        SELECT c.id, c.certificate_type, c.certificate_no, c.next_inspection_date,
                c.installation_address, c.installation_postcode,
                cu.id AS customer_id, cu.first_name, cu.last_name, cu.phone, cu.email
         FROM certificates c
         LEFT JOIN customers cu ON c.customer_id = cu.id
         WHERE c.status = 'approved'
           AND c.next_inspection_date IS NOT NULL
-          AND c.next_inspection_date <= NOW() + INTERVAL '${parseInt(months)} months'
+          AND c.next_inspection_date <= NOW() + $1::interval
           AND c.next_inspection_date >= NOW() - INTERVAL '1 month'
         ORDER BY c.next_inspection_date ASC
-      `);
+      `, [`${months} months`]);
       res.json({ certificates: rows, count: rows.length });
     } catch (err) {
       res.status(500).json({ error: err.message });

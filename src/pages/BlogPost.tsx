@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Calendar, Tag, User, ArrowLeft, Phone, MessageCircle, Share2, Loader2 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
@@ -196,7 +197,7 @@ const BlogPost = () => {
                   {/* Content */}
                   <article
                     className="prose prose-lg max-w-none prose-headings:text-foreground prose-headings:font-black prose-p:text-muted-foreground prose-strong:text-foreground prose-li:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:py-1 prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
-                    dangerouslySetInnerHTML={{ __html: post.content || '' }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content || '') }}
                   />
 
                   {/* Share */}

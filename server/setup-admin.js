@@ -7,14 +7,19 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5438,
   database: process.env.DB_NAME || 'electrician_db',
   user: process.env.DB_USER || 'electrician',
-  password: process.env.DB_PASSWORD || 'Prawowi1976',
+  password: process.env.DB_PASSWORD || '',
 });
 
 async function setupAdmin() {
-  const email = 'kelvincushman@gmail.com';
-  const password = 'Prawowi1976';
-  const displayName = 'Kelvin Cushman';
+  const email = process.env.ADMIN_EMAIL || 'kelvincushman@gmail.com';
+  const password = process.env.ADMIN_PASSWORD;
+  const displayName = process.env.ADMIN_NAME || 'Kelvin Cushman';
   const role = 'super_admin';
+
+  if (!password) {
+    console.error('ADMIN_PASSWORD environment variable is required');
+    process.exit(1);
+  }
 
   try {
     // Generate bcrypt hash
